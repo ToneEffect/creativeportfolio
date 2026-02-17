@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tone Effect | Designing World</title>
+    <style>
+        :root {
+            --bg-color: #050505;
+            --text-main: #ffffff;
+            --text-muted: #a1a1a1;
+            --accent-gradient: linear-gradient(135deg, #ff00cc, #3333ff); 
+            --glass-bg: rgba(20, 20, 20, 0.6);
+            --card-bg: #121212;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes neonPulse {
+            0% { text-shadow: 0 0 5px rgba(255, 0, 204, 0.2); }
+            50% { text-shadow: 0 0 20px rgba(51, 51, 255, 0.6), 0 0 10px rgba(255, 0, 204, 0.4); }
+            100% { text-shadow: 0 0 5px rgba(255, 0, 204, 0.2); }
+        }
+
+        /* --- Header --- */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px); 
+            -webkit-backdrop-filter: blur(12px);
+            transition: padding 0.3s;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            cursor: pointer;
+            color: #666; 
+            transition: all 0.4s ease;
+            text-transform: uppercase;
+            text-decoration: none; 
+        }
+        .logo:hover {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent; 
+            animation: neonPulse 1.5s infinite;
+            transform: scale(1.05);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-main);
+            font-size: 0.9rem;
+            position: relative;
+            transition: color 0.3s;
+            cursor: pointer;
+        }
+
+        /* Highlight protected links slightly to hint they are special */
+        .protected-link::before {
+            content: ' * ';
+            font-size: 0.8em;
+            opacity: 0.5;
+        }
+        
+        /* Remove lock icon if logged in (handled by JS class) */
+        body.logged-in .protected-link::before {
+            content: '';
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background: var(--accent-gradient);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after { width: 100%; }
+        .nav-links span.separator { color: #444; }
+
+        /* --- Buttons --- */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: var(--text-main);
+        }
+
+        .btn-outline:hover {
+            border-color: #fff;
+            background: rgba(255,255,255,0.05);
+            transform: scale(1.05);
+        }
+
+        .btn-filled {
+            background: var(--text-main);
+            color: black;
+        }
+
+        .btn-filled:hover {
+            background: #fff;
+            box-shadow: 0 0 15px rgba(255,255,255,0.4);
+            transform: scale(1.05);
+        }
+
+        .btn:active { transform: scale(0.95); }
+
+        /* --- Hero Section --- */
+        .hero {
+            min-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 20px;
+            position: relative;
+            background: radial-gradient(circle at 50% 50%, #1a0b1a 0%, #050505 70%);
+        }
+
+        .hero h1 {
+            font-size: 4.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #ffffff, #666666);
+            -webkit-background-clip: text;
+            color: transparent;
+            opacity: 0; 
+            animation: fadeUp 1s ease-out forwards;
+            animation-delay: 0.2s;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            max-width: 650px;
+            line-height: 1.6;
+            opacity: 0;
+            animation: fadeUp 1s ease-out forwards;
+            animation-delay: 0.5s;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            opacity: 0;
+            animation: fadeUp 1s ease-out forwards 1s, bounce 2s infinite 2s;
+            font-size: 0.8rem;
+            color: #444;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-10px);}
+            60% {transform: translateY(-5px);}
+        }
+
+        /* --- Sections General --- */
+        .editorial-menu {
+            padding: 120px 10%;
+            background: #0a0a0a;
+            border-top: 1px solid #1a1a1a;
+        }
+
+        .reveal-text {
+            font-size: 2.8rem;
+            line-height: 1.4;
+            color: #333;
+            transition: all 0.8s ease-out;
+            transform: translateY(50px);
+            opacity: 0;
+        }
+        .reveal-text.active { opacity: 1; transform: translateY(0); color: #555; }
+
+        .reveal-text a {
+            color: var(--text-main);
+            text-decoration: none;
+            position: relative;
+            z-index: 1;
+            padding: 0 5px;
+        }
+
+        .reveal-text a::before {
+            content: '';
+            position: absolute;
+            z-index: -1;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--accent-gradient);
+            transition: height 0.3s ease;
+            opacity: 0.7;
+        }
+        .reveal-text a:hover::before { height: 100%; }
+
+        /* --- About Section --- */
+        .about-section {
+            padding: 100px 10%;
+            background: #080808;
+            position: relative;
+        }
+
+        .about-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 50px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .about-text-content, .about-visual {
+            flex: 1;
+            min-width: 300px;
+            opacity: 0;
+            transition: all 0.8s ease;
+        }
+
+        .about-text-content { transform: translateX(-50px); }
+        .about-visual { 
+            transform: translateX(50px); 
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid #222;
+            position: relative;
+        }
+        
+        .about-text-content.active, .about-visual.active { opacity: 1; transform: translateX(0); }
+
+        .highlight-text {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            display: inline-block;
+            border-bottom: 2px solid #ff00cc;
+        }
+
+        .about-description {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        .tech-list {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .tech-item {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: #ccc;
+            border: 1px solid transparent;
+            transition: 0.3s;
+        }
+
+        .tech-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #3333ff;
+            transform: translateY(-3px);
+            color: white;
+            box-shadow: 0 5px 15px rgba(51, 51, 255, 0.2);
+        }
+
+        /* --- Projects/Work Section --- */
+        .downloads-section { padding: 100px 10%; }
+
+        .section-header {
+            margin-bottom: 60px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: 0.8s;
+        }
+        .section-header.active { opacity: 1; transform: translateY(0); }
+
+        .section-title {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #fff, #888);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 40px 30px;
+            border-radius: 16px;
+            border: 1px solid #222;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        .card.active { opacity: 1; transform: translateY(0); }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: #444;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: var(--accent-gradient);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+        .card:hover::before { transform: scaleX(1); }
+        .card h3 { margin-bottom: 15px; font-size: 1.4rem; }
+        .card p { color: var(--text-muted); margin-bottom: 25px; line-height: 1.5; }
+
+        /* --- Support Section --- */
+        .support-section {
+            padding: 100px 10%;
+            background: linear-gradient(to bottom, var(--bg-color), #0a0a0a);
+        }
+        
+        .support-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: start;
+        }
+
+        .support-card {
+            background: #111;
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid #333;
+            margin-bottom: 20px;
+        }
+
+        .support-card h4 { font-size: 1.2rem; margin-bottom: 10px; color: #fff; }
+        .support-card p { font-size: 0.9rem; color: #888; margin-bottom: 15px; }
+        .support-link { color: #3333ff; text-decoration: none; font-weight: bold; font-size: 0.9rem; cursor: pointer;}
+        .support-link:hover { color: #ff00cc; }
+
+        .faq-item {
+            border-bottom: 1px solid #333;
+            padding: 15px 0;
+        }
+        .faq-item:last-child { border-bottom: none; }
+        .faq-question { font-weight: 600; margin-bottom: 5px; color: #ddd; }
+        .faq-answer { font-size: 0.9rem; color: #777; line-height: 1.6; }
+
+        /* --- Auth Modal Styling --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .modal-overlay.open { opacity: 1; visibility: visible; }
+
+        .modal-content {
+            background: #1a1a1a;
+            padding: 40px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            border: 1px solid #333;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            transform: scale(0.8);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .modal-overlay.open .modal-content { transform: scale(1); }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .close-modal:hover { color: #fff; }
+
+        .auth-view { transition: opacity 0.3s; }
+        .form-title {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #fff, #aaa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; color: #888; margin-bottom: 8px; font-size: 0.9rem; }
+        
+        .modal-input {
+            width: 100%;
+            padding: 12px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: white;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .modal-input:focus {
+            border-color: #ff00cc;
+            box-shadow: 0 0 10px rgba(255, 0, 204, 0.2);
+        }
+
+        .toggle-text { margin-top: 20px; font-size: 0.9rem; color: #aaa; }
+        
+        .toggle-link {
+            color: #3333ff;
+            cursor: pointer;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+        .toggle-link:hover { color: #ff00cc; }
+        .hidden { display: none; }
+
+        /* --- Toast Notification --- */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #ff004c;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 3000;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            box-shadow: 0 5px 15px rgba(255, 0, 76, 0.3);
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.5s, bottom 0.5s;
+        }
+
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+
+        /* --- Footer --- */
+        footer {
+            background: #080808;
+            border-top: 1px solid #222;
+            padding: 80px 10% 40px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .footer-brand h2 { color: #fff; margin-bottom: 15px; font-size: 1.5rem; }
+        .footer-brand p { max-width: 300px; line-height: 1.6; }
+
+        .footer-links h4 { color: #fff; margin-bottom: 20px; font-size: 1rem; }
+        .footer-links ul { list-style: none; }
+        .footer-links li { margin-bottom: 10px; }
+        .footer-links a { text-decoration: none; color: #888; transition: 0.3s; cursor: pointer; }
+        .footer-links a:hover { color: #ff00cc; }
+
+        .copyright {
+            text-align: center;
+            padding-top: 40px;
+            border-top: 1px solid #222;
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 3rem; }
+            .about-container { flex-direction: column; }
+            .section-title { font-size: 2rem; }
+            .nav-links { display: none; }
+            .support-grid { grid-template-columns: 1fr; }
+            .footer-content { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="https://www.instagram.com/tone_effect___/" target="_blank" class="logo">
+    Tone Effect
+</a>
+        <nav class="nav-links">
+            <a href="#about">About</a>
+            <a href="#work" class="protected-link">Projects</a>
+            <a href="#support" class="protected-link">Support</a>
+            
+            <span class="separator">|</span>
+            
+            <div id="auth-buttons" style="display: flex; align-items: center; gap: 20px;">
+                <a onclick="openAuthModal('login')">Log In</a>
+                <a onclick="openAuthModal('signup')" class="btn btn-outline" style="text-decoration: none; padding: 8px 16px;">Sign Up</a>
+            </div>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1>Design. Code.<br>Frequency.</h1>
+        <p>A digital playground focusing on sonic visuals, cinematic web experiences, and high-performance interfaces.</p>
+        <div class="scroll-indicator">Scroll to Explore</div>
+    </section>
+
+    <section class="editorial-menu">
+        <div class="reveal-text" data-animate>
+            We build <a href="#">immersive</a> digital<br>
+            landscapes that <a href="#">resonate</a> with<br>
+            your audience.
+        </div>
+    </section>
+
+    <section id="about" class="about-section">
+        <div class="about-container">
+            <div class="about-text-content" data-animate>
+                <span class="highlight-text">The Mission</span>
+                <p class="about-description">
+                    Combining technical precision with artistic intuition. My workflow bridges the gap between raw data and emotive storytelling, using modern web technologies to create fluid, reactive environments.
+                </p>
+                <ul class="tech-list">
+                    <li class="tech-item">HTML5 / CSS3</li>
+                    <li class="tech-item">JavaScript (ES6+)</li>
+                    <li class="tech-item">WebGL</li>
+                    <li class="tech-item">UI/UX Design</li>
+                    <li class="tech-item">Sound Design</li>
+                </ul>
+            </div>
+            <div class="about-visual" data-animate>
+                <div style="width: 100%; height: 300px; background: radial-gradient(circle, #3333ff 0%, transparent 70%); opacity: 0.3; border-radius: 50%; filter: blur(40px);"></div>
+                <h3 style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2rem; mix-blend-mode: overlay;">VISUAL<br>CORE</h3>
+            </div>
+        </div>
+    </section>
+
+    <section id="work" class="downloads-section">
+        <div class="section-header" data-animate>
+            <h2 class="section-title">PROJECT'S</h2>
+        </div>
+        
+        <div class="grid-container">
+            <div class="card" data-animate style="transition-delay: 0.1s;">
+                <h3>Neon Interface</h3>
+                <p>A high-contrast dashboard designed for music production analytics.</p>
+                <button class="btn btn-outline protected-link">View Case Study</button>
+            </div>
+
+            <div class="card" data-animate style="transition-delay: 0.2s;">
+                <h3>Sonic Branding</h3>
+                <p>Audio-reactive visualizers created for a fintech startup launch.</p>
+                <button class="btn btn-outline protected-link">Listen & Watch</button>
+            </div>
+
+            <div class="card" data-animate style="transition-delay: 0.3s;">
+                <h3>C-Level Portfolio</h3>
+                <p>Minimalist personal website for a Fortune 500 executive.</p>
+                <button class="btn btn-outline protected-link">Visit Site</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="support" class="support-section">
+        <div class="section-header" data-animate>
+            <h2 class="section-title">Support Console</h2>
+        </div>
+
+        <div class="support-grid">
+            <div data-animate>
+                <div class="support-card">
+                    <h4>Knowledge Base</h4>
+                    <p>Browse documentation, API references, and design guidelines.</p>
+                    <span class="support-link protected-link">Browse Articles &rarr;</span>
+                </div>
+                <div class="support-card">
+                    <h4>Submit a Ticket</h4>
+                    <p>Having technical issues? Open a secure support request.</p>
+                    <span class="support-link protected-link">Open Ticket &rarr;</span>
+                </div>
+                <div class="support-card">
+                    <h4>Community</h4>
+                    <p>Join our Discord server to chat with other creators.</p>
+                    <span class="support-link protected-link">Join Server &rarr;</span>
+                </div>
+            </div>
+
+            <div style="padding-left: 20px;" data-animate>
+                <span class="highlight-text">Common Queries</span>
+                
+                <div class="faq-item">
+                    <p class="faq-question">Do you offer freelance services?</p>
+                    <p class="faq-answer">Yes, currently accepting new contracts for Q3 2026.</p>
+                </div>
+                <div class="faq-item">
+                    <p class="faq-question">What tech stack do you use?</p>
+                    <p class="faq-answer">Primarily Vanilla JS, React, and WebGL (Three.js) for frontend work.</p>
+                </div>
+                <div class="faq-item">
+                    <p class="faq-question">How can I download assets?</p>
+                    <p class="faq-answer">Log in to your account to access purchased assets from the resources tab.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="modal-overlay" id="authModal">
+        <div class="modal-content" style="text-align: center;">
+            <button class="close-modal" onclick="closeAuthModal()">&times;</button>
+            
+            <div id="loginView" class="auth-view">
+                <h2 class="form-title">Welcome Back</h2>
+                <p style="color: #666; margin-bottom: 30px;">Access your dashboard</p>
+                
+                <form onsubmit="handleAuthSubmit(event)">
+                    <div class="input-group">
+                        <label>Email Address</label>
+                        <input type="email" class="modal-input" placeholder="name@example.com" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" class="modal-input" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn-filled" style="width: 100%;">Log In</button>
+                </form>
+
+                <p class="toggle-text">
+                    Don't have an account? 
+                    <span class="toggle-link" onclick="switchAuthMode('signup')">Sign Up</span>
+                </p>
+            </div>
+
+            <div id="signupView" class="auth-view hidden">
+                <h2 class="form-title">Create Account</h2>
+                <p style="color: #666; margin-bottom: 30px;">Join the frequency</p>
+                
+                <form onsubmit="handleAuthSubmit(event)">
+                    <div class="input-group">
+                        <label>Full Name</label>
+                        <input type="text" class="modal-input" placeholder="John Doe" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Email Address</label>
+                        <input type="email" class="modal-input" placeholder="name@example.com" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" class="modal-input" placeholder="Create a password" required>
+                    </div>
+                    <button type="submit" class="btn btn-filled" style="width: 100%;">Create Account</button>
+                </form>
+
+                <p class="toggle-text">
+                    Already have an account? 
+                    <span class="toggle-link" onclick="switchAuthMode('login')">Log In</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast">Authentication Required: Please Log In</div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h2>Tone Effect</h2>
+                <p>Creating digital experiences that exist at the intersection of sound, visuals, and code.</p>
+            </div>
+
+            <div class="footer-links">
+                <h4>Navigation</h4>
+                <ul>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#work" class="protected-link">Projects</a></li>
+                    <li><a href="#support" class="protected-link">Support</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links">
+                <h4>Social</h4>
+                <ul>
+                    <li><a href="#">Twitter / X</a></li>
+                    <li><a href="#">Instagram</a></li>
+                    <li><a href="#">LinkedIn</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="copyright">
+            <p>&copy; 2026 Tone Effect Designing World. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- State Management ---
+        let isLoggedIn = false;
+
+        // --- Scroll Animations ---
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: "0px 0px -50px 0px"
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('[data-animate], .card').forEach(el => {
+            observer.observe(el);
+        });
+
+        // --- Header Scroll Effect ---
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.style.padding = '15px 5%';
+                header.style.background = 'rgba(5, 5, 5, 0.9)';
+            } else {
+                header.style.padding = '20px 5%';
+                header.style.background = 'rgba(20, 20, 20, 0.6)';
+            }
+        });
+
+        // --- Auth Modal Logic ---
+        const authModal = document.getElementById('authModal');
+        const loginView = document.getElementById('loginView');
+        const signupView = document.getElementById('signupView');
+        const authContainer = document.getElementById('auth-buttons');
+        const toast = document.getElementById('toast');
+
+        function openAuthModal(mode) {
+            authModal.classList.add('open');
+            switchAuthMode(mode);
+        }
+
+        function closeAuthModal() {
+            authModal.classList.remove('open');
+        }
+
+        function switchAuthMode(mode) {
+            if (mode === 'signup') {
+                loginView.classList.add('hidden');
+                signupView.classList.remove('hidden');
+            } else {
+                signupView.classList.add('hidden');
+                loginView.classList.remove('hidden');
+            }
+        }
+
+        // --- Handle Simulated Login ---
+        function handleAuthSubmit(e) {
+            e.preventDefault(); // Stop page reload
+            
+            // Simulate processing
+            setTimeout(() => {
+                isLoggedIn = true;
+                closeAuthModal();
+                updateUIForUser();
+                document.body.classList.add('logged-in'); // Removes lock icons via CSS
+                showToast("Welcome Back! Access Granted.", "#3333ff");
+            }, 500);
+        }
+
+        function updateUIForUser() {
+            // Replace Login/Signup buttons with "Welcome" and "Sign Out"
+            authContainer.innerHTML = `
+                <span style="color: #fff; font-size: 0.9rem;">Welcome, <strong>User</strong></span>
+                <button onclick="handleSignOut()" class="btn btn-outline" style="padding: 8px 16px; border-color: #ff00cc; color: #ff00cc;">Sign Out</button>
+            `;
+        }
+
+        function handleSignOut() {
+            isLoggedIn = false;
+            document.body.classList.remove('logged-in');
+            // Reset buttons
+            authContainer.innerHTML = `
+                <a onclick="openAuthModal('login')">Log In</a>
+                <a onclick="openAuthModal('signup')" class="btn btn-outline" style="text-decoration: none; padding: 8px 16px;">Sign Up</a>
+            `;
+            showToast("Logged out successfully.", "#888");
+        }
+
+        // --- Protection Logic ---
+        // Find all links with class 'protected-link'
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('protected-link') || e.target.closest('.protected-link')) {
+                if (!isLoggedIn) {
+                    e.preventDefault(); // Stop navigation
+                    e.stopPropagation();
+                    openAuthModal('login'); // Open login modal
+                    showToast("Login required to access this content");
+                }
+                // If logged in, do nothing (let default click happen)
+            }
+        });
+
+        // --- Toast Notification Helper ---
+        function showToast(message, color = "#ff004c") {
+            toast.textContent = message;
+            toast.style.backgroundColor = color;
+            toast.className = "show";
+            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        // Close Modal on Outside Click
+        window.onclick = function(event) {
+            if (event.target == authModal) {
+                closeAuthModal();
+            }
+        }
+    </script>
+</body>
+</html>

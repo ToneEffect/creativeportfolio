@@ -3,17 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tone Effect | Designing World</title>
+    <title>Tone Effect | Portfolio</title>
     <style>
-        :root {
-            --bg-color: #050505;
-            --text-main: #ffffff;
-            --text-muted: #a1a1a1;
-            --accent-gradient: linear-gradient(135deg, #ff00cc, #3333ff); 
-            --glass-bg: rgba(20, 20, 20, 0.6);
-            --card-bg: #121212;
-        }
-
+        /* --- RESET & VARIABLES --- */
         * {
             margin: 0;
             padding: 0;
@@ -22,773 +14,993 @@
             scroll-behavior: smooth;
         }
 
+        :root {
+            --bg: #050505;
+            --bg-light: #121212;
+            --text: #ffffff;
+            --text-muted: #a1a1a1;
+            --glass: rgba(20, 20, 20, 0.7);
+            --gradient: linear-gradient(135deg, #ff00cc, #3333ff);
+            --border-dim: rgba(255,255,255,0.05);
+        }
+
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
             overflow-x: hidden;
         }
 
-        /* --- Animations --- */
+        /* --- UTILITY & ANIMATION --- */
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes neonPulse {
-            0% { text-shadow: 0 0 5px rgba(255, 0, 204, 0.2); }
-            50% { text-shadow: 0 0 20px rgba(51, 51, 255, 0.6), 0 0 10px rgba(255, 0, 204, 0.4); }
-            100% { text-shadow: 0 0 5px rgba(255, 0, 204, 0.2); }
+        @keyframes neonBreath {
+            0% { text-shadow: 0 0 5px rgba(255,0,204,0.2); }
+            50% { text-shadow: 0 0 20px #3333ff, 0 0 35px #ff00cc; }
+            100% { text-shadow: 0 0 5px rgba(255,0,204,0.2); }
         }
 
-        /* --- Header --- */
+        .neon-hover {
+            transition: all 0.3s;
+        }
+        .neon-hover:hover {
+            animation: neonBreath 1.5s infinite;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* --- HEADER (STICKY / GLASS) --- */
         header {
             position: sticky;
             top: 0;
-            z-index: 1000;
+            z-index: 100;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 5%;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px); 
-            -webkit-backdrop-filter: blur(12px);
-            transition: padding 0.3s;
+            padding: 1.2rem 5%;
+            background: var(--glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-dim);
+            transition: padding 0.3s, background 0.3s;
         }
 
         .logo {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: 800;
             letter-spacing: 2px;
-            cursor: pointer;
-            color: #666; 
-            transition: all 0.4s ease;
+            text-decoration: none;
+            color: #aaa;
+            transition: 0.3s;
             text-transform: uppercase;
-            text-decoration: none; 
         }
+
         .logo:hover {
-            background: var(--accent-gradient);
+            color: transparent;
+            background: var(--gradient);
             -webkit-background-clip: text;
             background-clip: text;
-            color: transparent; 
-            animation: neonPulse 1.5s infinite;
-            transform: scale(1.05);
+            transform: scale(1.02);
         }
 
         .nav-links {
             display: flex;
-            gap: 25px;
             align-items: center;
+            gap: 2rem;
         }
 
         .nav-links a {
             text-decoration: none;
-            color: var(--text-main);
-            font-size: 0.9rem;
+            color: var(--text);
+            font-size: 0.95rem;
+            font-weight: 500;
             position: relative;
-            transition: color 0.3s;
             cursor: pointer;
+            transition: color 0.2s;
         }
 
-        /* Highlight protected links slightly to hint they are special */
+        .nav-links a.standard-link::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient);
+            transition: width 0.25s;
+        }
+
+        .nav-links a.standard-link:hover::after {
+            width: 100%;
+        }
+
         .protected-link::before {
             content: ' * ';
             font-size: 0.8em;
-            opacity: 0.5;
+            opacity: 0.6;
         }
-        
-        /* Remove lock icon if logged in (handled by JS class) */
         body.logged-in .protected-link::before {
             content: '';
         }
 
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: -5px;
-            left: 0;
-            background: var(--accent-gradient);
-            transition: width 0.3s;
+        .separator {
+            color: #333;
+            margin: 0 0.5rem;
         }
 
-        .nav-links a:hover::after { width: 100%; }
-        .nav-links span.separator { color: #444; }
-
-        /* --- Buttons --- */
+        /* --- BUTTONS --- */
         .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 6px;
+            display: inline-block;
+            padding: 10px 22px;
+            border-radius: 40px;
             font-weight: 600;
+            border: none;
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: all 0.25s ease;
+            text-decoration: none;
+            font-size: 0.9rem;
         }
 
         .btn-outline {
             background: transparent;
-            border: 1px solid rgba(255,255,255,0.3);
-            color: var(--text-main);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
         }
 
         .btn-outline:hover {
-            border-color: #fff;
-            background: rgba(255,255,255,0.05);
-            transform: scale(1.05);
+            border-color: #ff00cc;
+            background: rgba(255,255,255,0.02);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px -10px #ff00cc;
         }
 
         .btn-filled {
-            background: var(--text-main);
+            background: white;
             color: black;
+            border: 1px solid transparent;
         }
 
         .btn-filled:hover {
-            background: #fff;
-            box-shadow: 0 0 15px rgba(255,255,255,0.4);
-            transform: scale(1.05);
+            background: #f0f0f0;
+            box-shadow: 0 0 20px rgba(255,255,255,0.3);
+            transform: scale(1.02);
         }
 
-        .btn:active { transform: scale(0.95); }
+        /* --- AUTH BUTTONS --- */
+        .auth-btn-login {
+            position: relative;
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 8px 16px;
+            transition: all 0.3s;
+            border-radius: 20px;
+        }
 
-        /* --- Hero Section --- */
+        .auth-btn-login:hover {
+            color: #ff00cc;
+            text-shadow: 0 0 8px rgba(255,0,204,0.5);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .auth-btn-signup {
+            position: relative;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: 700;
+            color: white !important;
+            background: linear-gradient(90deg, #ff00cc, #3333ff, #ff00cc);
+            background-size: 200% auto;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.4s ease;
+            box-shadow: 0 0 15px rgba(51, 51, 255, 0.4);
+            animation: gradientPulse 3s infinite linear;
+            display: inline-block;
+        }
+
+        .auth-btn-signup:hover {
+            background-position: right center;
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 0, 204, 0.6);
+        }
+
+        @keyframes gradientPulse {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        /* --- USER DROPDOWN MENU --- */
+        .user-menu-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .user-profile-btn {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 40px;
+            border: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        
+        .user-profile-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #ff00cc;
+            box-shadow: 0 0 15px rgba(255, 0, 204, 0.2);
+        }
+        
+        .dropdown-content {
+            position: absolute;
+            top: 130%;
+            right: 0;
+            background: rgba(15, 15, 15, 0.95);
+            backdrop-filter: blur(10px);
+            min-width: 200px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+            overflow: hidden;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-15px);
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
+            z-index: 200;
+        }
+        
+        .user-menu-container:hover .dropdown-content {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .dropdown-item {
+            display: block;
+            padding: 14px 20px;
+            color: #ddd;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            position: relative;
+        }
+        
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        .dropdown-item:hover {
+            background: rgba(255,255,255,0.03);
+            color: #fff;
+            padding-left: 26px;
+        }
+
+        .dropdown-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: var(--gradient);
+            transform: scaleY(0);
+            transition: 0.2s;
+        }
+
+        .dropdown-item:hover::before {
+            transform: scaleY(1);
+        }
+
+        .logout-item:hover {
+            color: #ff4c4c !important;
+        }
+        
+        .logout-item::before {
+            background: #ff4c4c !important;
+        }
+
+        /* --- HERO SECTION --- */
         .hero {
-            min-height: 85vh;
+            min-height: 90vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 0 20px;
-            position: relative;
-            background: radial-gradient(circle at 50% 50%, #1a0b1a 0%, #050505 70%);
+            background: radial-gradient(circle at 30% 40%, #1e0a1e, #050505 80%);
+            padding: 0 1.5rem;
         }
 
         .hero h1 {
-            font-size: 4.5rem;
-            margin-bottom: 20px;
-            background: linear-gradient(to right, #ffffff, #666666);
+            font-size: clamp(3rem, 10vw, 5.5rem);
+            line-height: 1.1;
+            font-weight: 800;
+            background: linear-gradient(145deg, #fff 20%, #aaa);
             -webkit-background-clip: text;
+            background-clip: text;
             color: transparent;
-            opacity: 0; 
-            animation: fadeUp 1s ease-out forwards;
-            animation-delay: 0.2s;
+            opacity: 0;
+            animation: fadeUp 0.9s forwards 0.2s;
         }
 
         .hero p {
             font-size: 1.3rem;
-            color: var(--text-muted);
             max-width: 650px;
-            line-height: 1.6;
+            color: #aaa;
+            margin-top: 1.5rem;
             opacity: 0;
-            animation: fadeUp 1s ease-out forwards;
-            animation-delay: 0.5s;
+            animation: fadeUp 0.9s forwards 0.5s;
         }
 
         .scroll-indicator {
             position: absolute;
-            bottom: 40px;
-            opacity: 0;
-            animation: fadeUp 1s ease-out forwards 1s, bounce 2s infinite 2s;
+            bottom: 2rem;
             font-size: 0.8rem;
-            color: #444;
+            color: #555;
+            opacity: 0;
+            animation: fadeUp 0.9s forwards 1.2s, bounce 2.4s infinite 2s;
         }
 
         @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
-            40% {transform: translateY(-10px);}
-            60% {transform: translateY(-5px);}
+            0%,100%{ transform: translateY(0); }
+            50%{ transform: translateY(-8px); }
         }
 
-        /* --- Sections General --- */
+        /* --- EDITORIAL --- */
         .editorial-menu {
-            padding: 120px 10%;
+            padding: 8rem 10%;
             background: #0a0a0a;
-            border-top: 1px solid #1a1a1a;
         }
 
         .reveal-text {
-            font-size: 2.8rem;
+            font-size: clamp(2rem, 5vw, 3.5rem);
             line-height: 1.4;
+            font-weight: 300;
             color: #333;
-            transition: all 0.8s ease-out;
-            transform: translateY(50px);
+            transform: translateY(60px);
             opacity: 0;
+            transition: 1s cubic-bezier(0.2, 0.9, 0.3, 1);
         }
-        .reveal-text.active { opacity: 1; transform: translateY(0); color: #555; }
+
+        .reveal-text.active {
+            opacity: 1;
+            transform: translateY(0);
+            color: #ccc;
+        }
 
         .reveal-text a {
-            color: var(--text-main);
             text-decoration: none;
+            color: white;
+            font-weight: 500;
             position: relative;
             z-index: 1;
-            padding: 0 5px;
+            padding: 0 4px;
         }
 
         .reveal-text a::before {
             content: '';
             position: absolute;
-            z-index: -1;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 5px;
-            background: var(--accent-gradient);
-            transition: height 0.3s ease;
-            opacity: 0.7;
+            height: 20%;
+            background: var(--gradient);
+            z-index: -1;
+            opacity: 0.4;
+            transition: height 0.2s;
         }
-        .reveal-text a:hover::before { height: 100%; }
+        .reveal-text a:hover::before { height: 100%; opacity: 0.6; }
 
-        /* --- About Section --- */
+        /* --- ABOUT SECTION --- */
         .about-section {
-            padding: 100px 10%;
+            padding: 6rem 10%;
             background: #080808;
-            position: relative;
         }
 
         .about-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 50px;
+            gap: 4rem;
             align-items: center;
-            justify-content: space-between;
         }
 
         .about-text-content, .about-visual {
-            flex: 1;
-            min-width: 300px;
+            flex: 1 1 300px;
             opacity: 0;
-            transition: all 0.8s ease;
+            transform: translateX(-30px);
+            transition: 0.8s ease;
         }
-
-        .about-text-content { transform: translateX(-50px); }
-        .about-visual { 
-            transform: translateX(50px); 
-            background: var(--card-bg);
-            padding: 40px;
-            border-radius: 20px;
-            border: 1px solid #222;
-            position: relative;
+        .about-visual {
+            transform: translateX(30px);
         }
-        
-        .about-text-content.active, .about-visual.active { opacity: 1; transform: translateX(0); }
+        .about-text-content.active, .about-visual.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
 
         .highlight-text {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--text-main);
-            letter-spacing: 1px;
+            font-size: 1rem;
             text-transform: uppercase;
-            margin-bottom: 20px;
+            letter-spacing: 3px;
+            border-left: 4px solid #ff00cc;
+            padding-left: 1rem;
+            margin-bottom: 1.5rem;
             display: inline-block;
-            border-bottom: 2px solid #ff00cc;
         }
 
         .about-description {
+            color: #aaa;
             font-size: 1.1rem;
-            color: var(--text-muted);
-            line-height: 1.8;
-            margin-bottom: 30px;
+            margin: 1.5rem 0 2rem;
         }
 
         .tech-list {
-            list-style: none;
             display: flex;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 0.8rem;
+            list-style: none;
         }
-
         .tech-item {
-            padding: 10px 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 50px;
+            background: #1a1a1a;
+            padding: 0.6rem 1.4rem;
+            border-radius: 40px;
             font-size: 0.9rem;
+            border: 1px solid #2a2a2a;
+            transition: 0.2s;
             color: #ccc;
-            border: 1px solid transparent;
-            transition: 0.3s;
         }
-
         .tech-item:hover {
-            background: rgba(255, 255, 255, 0.1);
             border-color: #3333ff;
-            transform: translateY(-3px);
+            transform: translateY(-2px);
+            background: #222;
+            box-shadow: 0 5px 15px rgba(51,51,255,0.2);
+        }
+
+        .about-visual {
+            position: relative;
+            background: #111;
+            border-radius: 30px;
+            padding: 3rem;
+            border: 1px solid #222;
+            backdrop-filter: blur(5px);
+            min-height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .about-visual .glow {
+            width: 100%;
+            height: 200px;
+            background: radial-gradient(circle, #3333ff 0%, transparent 70%);
+            filter: blur(50px);
+            opacity: 0.3;
+        }
+        .about-visual h3 {
+            position: absolute;
+            font-size: 2rem;
+            font-weight: 800;
             color: white;
-            box-shadow: 0 5px 15px rgba(51, 51, 255, 0.2);
+            mix-blend-mode: overlay;
+            letter-spacing: 8px;
         }
 
-        /* --- Projects/Work Section --- */
-        .downloads-section { padding: 100px 10%; }
-
+        /* --- PROJECTS --- */
+        .downloads-section {
+            padding: 6rem 10%;
+        }
         .section-header {
-            margin-bottom: 60px;
+            margin-bottom: 4rem;
             opacity: 0;
-            transform: translateY(30px);
-            transition: 0.8s;
+            transform: translateY(25px);
+            transition: 0.7s;
         }
-        .section-header.active { opacity: 1; transform: translateY(0); }
-
+        .section-header.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
         .section-title {
-            font-size: 2.5rem;
-            background: linear-gradient(45deg, #fff, #888);
+            font-size: clamp(2rem,5vw,3rem);
+            background: linear-gradient(to right, #fff, #888);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
         }
-
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 2.5rem;
         }
-
         .card {
-            background: var(--card-bg);
-            padding: 40px 30px;
-            border-radius: 16px;
-            border: 1px solid #222;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.4s ease;
+            background: #121212;
+            padding: 2.5rem 2rem;
+            border-radius: 24px;
+            border: 1px solid #252525;
+            transition: 0.3s;
             opacity: 0;
-            transform: translateY(30px);
+            transform: translateY(25px);
         }
-        .card.active { opacity: 1; transform: translateY(0); }
-
+        .card.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
         .card:hover {
-            transform: translateY(-10px);
+            transform: translateY(-8px);
             border-color: #444;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 30px -10px black;
         }
-
         .card::before {
-            content: "";
+            content: '';
             position: absolute;
             top: 0; left: 0; right: 0; height: 2px;
-            background: var(--accent-gradient);
+            background: var(--gradient);
             transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.4s ease;
+            transition: 0.3s;
         }
-        .card:hover::before { transform: scaleX(1); }
-        .card h3 { margin-bottom: 15px; font-size: 1.4rem; }
-        .card p { color: var(--text-muted); margin-bottom: 25px; line-height: 1.5; }
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+        .card h3 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        .card p {
+            color: #777;
+            margin-bottom: 2rem;
+        }
 
-        /* --- Support Section --- */
+        /* --- SUPPORT SECTION --- */
         .support-section {
-            padding: 100px 10%;
-            background: linear-gradient(to bottom, var(--bg-color), #0a0a0a);
+            padding: 6rem 10%;
+            background: linear-gradient(180deg, #080808, #030303);
         }
-        
         .support-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 50px;
-            align-items: start;
+            gap: 3rem;
         }
-
         .support-card {
             background: #111;
-            padding: 30px;
-            border-radius: 12px;
-            border: 1px solid #333;
-            margin-bottom: 20px;
+            padding: 2rem;
+            border-radius: 18px;
+            border: 1px solid #2a2a2a;
+            margin-bottom: 1.8rem;
+            transition: 0.2s;
         }
-
-        .support-card h4 { font-size: 1.2rem; margin-bottom: 10px; color: #fff; }
-        .support-card p { font-size: 0.9rem; color: #888; margin-bottom: 15px; }
-        .support-link { color: #3333ff; text-decoration: none; font-weight: bold; font-size: 0.9rem; cursor: pointer;}
-        .support-link:hover { color: #ff00cc; }
+        .support-card:hover {
+            border-color: #ff00cc;
+        }
+        .support-card h4 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        .support-card p {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        .support-link {
+            display: inline-block;
+            margin-top: 1rem;
+            color: #6a6aff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .support-link:hover {
+            color: #ff00cc;
+            transform: translateX(5px);
+        }
 
         .faq-item {
-            border-bottom: 1px solid #333;
-            padding: 15px 0;
+            border-bottom: 1px solid #222;
+            padding: 1.2rem 0;
         }
-        .faq-item:last-child { border-bottom: none; }
-        .faq-question { font-weight: 600; margin-bottom: 5px; color: #ddd; }
-        .faq-answer { font-size: 0.9rem; color: #777; line-height: 1.6; }
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+        .faq-question {
+            font-weight: 600;
+            color: #ddd;
+        }
+        .faq-answer {
+            color: #777;
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+        }
 
-        /* --- Auth Modal Styling --- */
+        /* --- MODAL --- */
         .modal-overlay {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
-            z-index: 2000;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             opacity: 0;
             visibility: hidden;
-            transition: all 0.3s ease;
+            transition: 0.3s;
         }
-        .modal-overlay.open { opacity: 1; visibility: visible; }
-
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
         .modal-content {
-            background: #1a1a1a;
-            padding: 40px;
-            border-radius: 16px;
+            background: #181818;
+            padding: 2.5rem;
+            border-radius: 32px;
+            max-width: 450px;
             width: 90%;
-            max-width: 500px;
-            position: relative;
             border: 1px solid #333;
-            box-shadow: 0 0 50px rgba(0,0,0,0.8);
-            transform: scale(0.8);
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform: scale(0.85);
+            transition: transform 0.3s ease;
         }
-        .modal-overlay.open .modal-content { transform: scale(1); }
-
+        .modal-overlay.open .modal-content {
+            transform: scale(1);
+        }
         .close-modal {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 1.2rem;
+            right: 1.5rem;
             background: none;
             border: none;
-            color: #666;
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: color 0.3s;
-        }
-        .close-modal:hover { color: #fff; }
-
-        .auth-view { transition: opacity 0.3s; }
-        .form-title {
+            color: #888;
             font-size: 2rem;
-            margin-bottom: 10px;
-            background: linear-gradient(to right, #fff, #aaa);
+            cursor: pointer;
+        }
+        .close-modal:hover {
+            color: white;
+        }
+        .auth-view {
+            transition: opacity 0.2s;
+        }
+        .form-title {
+            font-size: 2.2rem;
+            background: var(--gradient);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
+            margin-bottom: 0.5rem;
         }
-        .input-group { margin-bottom: 20px; text-align: left; }
-        .input-group label { display: block; color: #888; margin-bottom: 8px; font-size: 0.9rem; }
-        
+        .input-group {
+            text-align: left;
+            margin-bottom: 1.5rem;
+        }
+        .input-group label {
+            color: #aaa;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            margin-bottom: 0.3rem;
+            display: block;
+        }
         .modal-input {
             width: 100%;
-            padding: 12px;
             background: #0a0a0a;
             border: 1px solid #333;
-            border-radius: 6px;
+            padding: 1rem;
+            border-radius: 14px;
             color: white;
             outline: none;
-            transition: border-color 0.3s, box-shadow 0.3s;
         }
         .modal-input:focus {
             border-color: #ff00cc;
-            box-shadow: 0 0 10px rgba(255, 0, 204, 0.2);
+            box-shadow: 0 0 10px #ff00cc40;
         }
-
-        .toggle-text { margin-top: 20px; font-size: 0.9rem; color: #aaa; }
-        
         .toggle-link {
-            color: #3333ff;
+            color: #6a6aff;
             cursor: pointer;
-            font-weight: bold;
-            transition: color 0.3s;
+            font-weight: 600;
         }
-        .toggle-link:hover { color: #ff00cc; }
-        .hidden { display: none; }
+        .hidden {
+            display: none;
+        }
 
-        /* --- Toast Notification --- */
+        /* --- TOAST --- */
         #toast {
-            visibility: hidden;
-            min-width: 250px;
-            background-color: #ff004c;
-            color: #fff;
-            text-align: center;
-            border-radius: 8px;
-            padding: 16px;
             position: fixed;
-            z-index: 3000;
-            left: 50%;
             bottom: 30px;
+            left: 50%;
             transform: translateX(-50%);
-            box-shadow: 0 5px 15px rgba(255, 0, 76, 0.3);
-            font-weight: bold;
+            background: #ff004c;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 60px;
+            font-weight: 600;
+            box-shadow: 0 10px 25px #ff004c80;
             opacity: 0;
-            transition: opacity 0.5s, bottom 0.5s;
+            visibility: hidden;
+            transition: 0.3s;
+            z-index: 1100;
+            white-space: nowrap;
         }
-
         #toast.show {
-            visibility: visible;
             opacity: 1;
-            bottom: 50px;
+            visibility: visible;
+            bottom: 40px;
         }
 
-        /* --- Footer --- */
+        /* --- FOOTER --- */
         footer {
-            background: #080808;
+            background: #070707;
+            padding: 4rem 10% 2rem;
             border-top: 1px solid #222;
-            padding: 80px 10% 40px;
-            font-size: 0.9rem;
-            color: #666;
         }
-
         .footer-content {
             display: flex;
-            justify-content: space-between;
             flex-wrap: wrap;
-            gap: 40px;
-            margin-bottom: 60px;
+            justify-content: space-between;
+            gap: 3rem;
+            margin-bottom: 3rem;
         }
-
-        .footer-brand h2 { color: #fff; margin-bottom: 15px; font-size: 1.5rem; }
-        .footer-brand p { max-width: 300px; line-height: 1.6; }
-
-        .footer-links h4 { color: #fff; margin-bottom: 20px; font-size: 1rem; }
-        .footer-links ul { list-style: none; }
-        .footer-links li { margin-bottom: 10px; }
-        .footer-links a { text-decoration: none; color: #888; transition: 0.3s; cursor: pointer; }
-        .footer-links a:hover { color: #ff00cc; }
-
+        .footer-brand p {
+            max-width: 280px;
+            color: #888;
+        }
+        .footer-links h4 {
+            color: white;
+            margin-bottom: 1.2rem;
+        }
+        .footer-links ul {
+            list-style: none;
+        }
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+        .footer-links a {
+            color: #888;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+        .footer-links a:hover {
+            color: #ff00cc;
+            padding-left: 5px;
+        }
         .copyright {
             text-align: center;
-            padding-top: 40px;
+            padding-top: 2rem;
+            color: #555;
             border-top: 1px solid #222;
         }
 
-        /* --- Responsive Design --- */
-        @media (max-width: 768px) {
-            .hero h1 { font-size: 3rem; }
-            .about-container { flex-direction: column; }
-            .section-title { font-size: 2rem; }
-            .nav-links { display: none; }
+        @media (max-width: 900px) {
             .support-grid { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+        }
+        @media (max-width: 700px) {
+            .about-container { flex-direction: column; }
             .footer-content { flex-direction: column; }
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <a href="https://www.instagram.com/tone_effect___/" target="_blank" class="logo">
-    Tone Effect
-</a>
-        <nav class="nav-links">
-            <a href="#about">About</a>
-            <a href="#work" class="protected-link">Projects</a>
-            <a href="#support" class="protected-link">Support</a>
-            
-            <span class="separator">|</span>
-            
-            <div id="auth-buttons" style="display: flex; align-items: center; gap: 20px;">
-                <a onclick="openAuthModal('login')">Log In</a>
-                <a onclick="openAuthModal('signup')" class="btn btn-outline" style="text-decoration: none; padding: 8px 16px;">Sign Up</a>
-            </div>
-        </nav>
-    </header>
-
-    <section class="hero">
-        <h1>Design. Code.<br>Frequency.</h1>
-        <p>A digital playground focusing on sonic visuals, cinematic web experiences, and high-performance interfaces.</p>
-        <div class="scroll-indicator">Scroll to Explore</div>
-    </section>
-
-    <section class="editorial-menu">
-        <div class="reveal-text" data-animate>
-            We build <a href="#">immersive</a> digital<br>
-            landscapes that <a href="#">resonate</a> with<br>
-            your audience.
+<header>
+    <a href="https://www.instagram.com/tone_effect___" class="logo neon-hover">Tone Effect</a>
+    <nav class="nav-links">
+        <a href="#about" class="standard-link">About</a>
+        <a href="admin.html" class="protected-link standard-link">Admin</a>
+        <a href="#work" class="protected-link standard-link">Projects</a>
+        <a href="#support" class="protected-link standard-link">Support</a>
+        <span class="separator">|</span>
+        <div id="auth-buttons" style="display: flex; gap: 15px; align-items: center;">
+            <a href="javascript:void(0)" onclick="openAuthModal('login')" class="auth-btn-login">Log In</a>
+            <a href="javascript:void(0)" onclick="openAuthModal('signup')" class="auth-btn-signup">Sign Up</a>
         </div>
-    </section>
+    </nav>
+</header>
 
-    <section id="about" class="about-section">
-        <div class="about-container">
-            <div class="about-text-content" data-animate>
-                <span class="highlight-text">The Mission</span>
-                <p class="about-description">
-                    Combining technical precision with artistic intuition. My workflow bridges the gap between raw data and emotive storytelling, using modern web technologies to create fluid, reactive environments.
-                </p>
-                <ul class="tech-list">
-                    <li class="tech-item">HTML5 / CSS3</li>
-                    <li class="tech-item">JavaScript (ES6+)</li>
-                    <li class="tech-item">WebGL</li>
-                    <li class="tech-item">UI/UX Design</li>
-                    <li class="tech-item">Sound Design</li>
-                </ul>
-            </div>
-            <div class="about-visual" data-animate>
-                <div style="width: 100%; height: 300px; background: radial-gradient(circle, #3333ff 0%, transparent 70%); opacity: 0.3; border-radius: 50%; filter: blur(40px);"></div>
-                <h3 style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2rem; mix-blend-mode: overlay;">VISUAL<br>CORE</h3>
-            </div>
+<section class="hero">
+    <h1>Design. Code.<br>Frequency.</h1>
+    <p>A digital playground focusing on sonic visuals, cinematic web experiences, and high-performance interfaces.</p>
+    <div class="scroll-indicator">Scroll to Explore</div>
+</section>
+
+<section class="editorial-menu">
+    <div class="reveal-text" data-animate>
+        We build <a href="#">immersive</a> digital<br>landscapes that <a href="#">resonate</a> with<br>your audience.
+    </div>
+</section>
+
+<section id="about" class="about-section">
+    <div class="about-container">
+        <div class="about-text-content" data-animate>
+            <span class="highlight-text">The Mission</span>
+            <p class="about-description">
+                At Tone Effect, our mission is to redefine visual storytelling by blending aesthetic precision with strategic impact. We are dedicated to crafting unique digital identities that resonate deeply and leave a lasting impression, ensuring every design sets the perfect tone for your brand’s success.
+            </p>
+            <ul class="tech-list">
+             <li class="tech-item">Creative Direction</li>
+                    <li class="tech-item">UI/UX Strategy</li>
+                    <li class="tech-item">Motion Graphics</li>
+                    <li class="tech-item">Frontend Architecture</li>
+                    <li class="tech-item">Immersive WebGL</li>
+            </ul>
         </div>
-    </section>
-
-    <section id="work" class="downloads-section">
-        <div class="section-header" data-animate>
-            <h2 class="section-title">PROJECT'S</h2>
+        <div class="about-visual" data-animate>
+            <div class="glow"></div>
+            <h3>VISUAL<br>CORE</h3>
         </div>
-        
-        <div class="grid-container">
-            <div class="card" data-animate style="transition-delay: 0.1s;">
-                <h3>Neon Interface</h3>
-                <p>A high-contrast dashboard designed for music production analytics.</p>
-                <button class="btn btn-outline protected-link">View Case Study</button>
-            </div>
+    </div>
+</section>
 
-            <div class="card" data-animate style="transition-delay: 0.2s;">
-                <h3>Sonic Branding</h3>
-                <p>Audio-reactive visualizers created for a fintech startup launch.</p>
-                <button class="btn btn-outline protected-link">Listen & Watch</button>
-            </div>
-
-            <div class="card" data-animate style="transition-delay: 0.3s;">
-                <h3>C-Level Portfolio</h3>
-                <p>Minimalist personal website for a Fortune 500 executive.</p>
-                <button class="btn btn-outline protected-link">Visit Site</button>
-            </div>
+<section id="work" class="downloads-section">
+    <div class="section-header" data-animate>
+        <h2 class="section-title">PROJECTS</h2>
+    </div>
+    <div class="grid-container">
+        <div class="card" data-animate>
+            <h3>Premium Presets</h3>
+            <p>A high-contrast dashboard designed for music production analytics.</p>
+            <a href="Premium.html" target="_blank" class="btn btn-outline protected-link require-auth">View Case Study</a>
         </div>
-    </section>
-
-    <section id="support" class="support-section">
-        <div class="section-header" data-animate>
-            <h2 class="section-title">Support Console</h2>
+        <div class="card" data-animate>
+            <h3>Free Presets</h3>
+            <p>Audio-reactive visualizers created for a fintech startup launch.</p>
+            <a href="Free.html" target="_blank" class="btn btn-outline protected-link require-auth">Listen & Watch</a>
         </div>
+        <div class="card" data-animate>
+            <h3>Lightroom Presets</h3>
+            <p>Minimalist personal website for a Fortune 500 executive.</p>
+            <a href="Premium_lightroom.html" target="_blank" class="btn btn-outline protected-link require-auth">Visit Site</a>
+        </div>
+    </div>
+</section>
 
-        <div class="support-grid">
-            <div data-animate>
-                <div class="support-card">
-                    <h4>Knowledge Base</h4>
-                    <p>Browse documentation, API references, and design guidelines.</p>
-                    <span class="support-link protected-link">Browse Articles &rarr;</span>
-                </div>
-                <div class="support-card">
-                    <h4>Submit a Ticket</h4>
-                    <p>Having technical issues? Open a secure support request.</p>
-                    <span class="support-link protected-link">Open Ticket &rarr;</span>
-                </div>
-                <div class="support-card">
-                    <h4>Community</h4>
-                    <p>Join our Discord server to chat with other creators.</p>
-                    <span class="support-link protected-link">Join Server &rarr;</span>
-                </div>
+<section id="support" class="support-section">
+    <div class="section-header" data-animate>
+        <h2 class="section-title">Support Console</h2>
+    </div>
+    <div class="support-grid">
+        <div data-animate>
+            <div class="support-card">
+                <h4>Knowledge Base</h4>
+                <p>Browse documentation, API references, and design guidelines.</p>
+                <span class="support-link protected-link">Browse Articles &rarr;</span>
             </div>
-
-            <div style="padding-left: 20px;" data-animate>
-                <span class="highlight-text">Common Queries</span>
-                
-                <div class="faq-item">
-                    <p class="faq-question">Do you offer freelance services?</p>
-                    <p class="faq-answer">Yes, currently accepting new contracts for Q3 2026.</p>
-                </div>
-                <div class="faq-item">
-                    <p class="faq-question">What tech stack do you use?</p>
-                    <p class="faq-answer">Primarily Vanilla JS, React, and WebGL (Three.js) for frontend work.</p>
-                </div>
-                <div class="faq-item">
-                    <p class="faq-question">How can I download assets?</p>
-                    <p class="faq-answer">Log in to your account to access purchased assets from the resources tab.</p>
-                </div>
+            <div class="support-card">
+                <h4>Submit a Ticket</h4>
+                <p>Having technical issues? Open a secure support request.</p>
+                <span class="support-link protected-link">Open Ticket &rarr;</span>
+            </div>
+            <div class="support-card">
+                <h4>Community</h4>
+                <p>Join our Discord server to chat with other creators.</p>
+                <span class="support-link protected-link">Join Server &rarr;</span>
             </div>
         </div>
-    </section>
-
-    <div class="modal-overlay" id="authModal">
-        <div class="modal-content" style="text-align: center;">
-            <button class="close-modal" onclick="closeAuthModal()">&times;</button>
-            
-            <div id="loginView" class="auth-view">
-                <h2 class="form-title">Welcome Back</h2>
-                <p style="color: #666; margin-bottom: 30px;">Access your dashboard</p>
-                
-                <form onsubmit="handleAuthSubmit(event)">
-                    <div class="input-group">
-                        <label>Email Address</label>
-                        <input type="email" class="modal-input" placeholder="name@example.com" required>
-                    </div>
-                    <div class="input-group">
-                        <label>Password</label>
-                        <input type="password" class="modal-input" placeholder="••••••••" required>
-                    </div>
-                    <button type="submit" class="btn btn-filled" style="width: 100%;">Log In</button>
-                </form>
-
-                <p class="toggle-text">
-                    Don't have an account? 
-                    <span class="toggle-link" onclick="switchAuthMode('signup')">Sign Up</span>
-                </p>
+        <div style="padding-left: 0.5rem;" data-animate>
+            <span class="highlight-text">Common Queries</span>
+            <div class="faq-item">
+                <p class="faq-question">Do you offer freelance services?</p>
+                <p class="faq-answer">Yes, currently accepting new contracts for Q3 2026.</p>
             </div>
-
-            <div id="signupView" class="auth-view hidden">
-                <h2 class="form-title">Create Account</h2>
-                <p style="color: #666; margin-bottom: 30px;">Join the frequency</p>
-                
-                <form onsubmit="handleAuthSubmit(event)">
-                    <div class="input-group">
-                        <label>Full Name</label>
-                        <input type="text" class="modal-input" placeholder="John Doe" required>
-                    </div>
-                    <div class="input-group">
-                        <label>Email Address</label>
-                        <input type="email" class="modal-input" placeholder="name@example.com" required>
-                    </div>
-                    <div class="input-group">
-                        <label>Password</label>
-                        <input type="password" class="modal-input" placeholder="Create a password" required>
-                    </div>
-                    <button type="submit" class="btn btn-filled" style="width: 100%;">Create Account</button>
-                </form>
-
-                <p class="toggle-text">
-                    Already have an account? 
-                    <span class="toggle-link" onclick="switchAuthMode('login')">Log In</span>
-                </p>
+            <div class="faq-item">
+                <p class="faq-question">What tech stack do you use?</p>
+                <p class="faq-answer">Primarily Vanilla JS, React, and WebGL (Three.js) for frontend work.</p>
+            </div>
+            <div class="faq-item">
+                <p class="faq-question">How can I download assets?</p>
+                <p class="faq-answer">Log in to your account to access purchased assets from the resources tab.</p>
             </div>
         </div>
     </div>
+</section>
 
-    <div id="toast">Authentication Required: Please Log In</div>
-
-    <footer>
-        <div class="footer-content">
-            <div class="footer-brand">
-                <h2>Tone Effect</h2>
-                <p>Creating digital experiences that exist at the intersection of sound, visuals, and code.</p>
-            </div>
-
-            <div class="footer-links">
-                <h4>Navigation</h4>
-                <ul>
-                    <li><a href="#about">About</a></li>
-                    <li><a href="#work" class="protected-link">Projects</a></li>
-                    <li><a href="#support" class="protected-link">Support</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-links">
-                <h4>Legal</h4>
-                <ul>
-                    <li><a href="#">Privacy Policy</a></li>
-                    <li><a href="#">Terms of Service</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-links">
-                <h4>Social</h4>
-                <ul>
-                    <li><a href="#">Twitter / X</a></li>
-                    <li><a href="#">Instagram</a></li>
-                    <li><a href="#">LinkedIn</a></li>
-                </ul>
-            </div>
+<div class="modal-overlay" id="authModal">
+    <div class="modal-content">
+        <button class="close-modal" onclick="closeAuthModal()">&times;</button>
+        <div id="loginView" class="auth-view">
+            <h2 class="form-title">Welcome Back</h2>
+            <p style="color:#666; margin-bottom: 1.5rem;">Access your dashboard</p>
+            <form onsubmit="handleAuthSubmit(event)">
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" class="modal-input" placeholder="name@example.com" required>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" class="modal-input" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-filled" style="width:100%;">Log In</button>
+            </form>
+            <p class="toggle-text" style="margin-top: 1rem; color: #888;">Don't have an account? <span class="toggle-link" onclick="switchAuthMode('signup')">Sign Up</span></p>
         </div>
-
-        <div class="copyright">
-            <p>&copy; 2026 Tone Effect Designing World. All rights reserved.</p>
+        <div id="signupView" class="auth-view hidden">
+            <h2 class="form-title">Create Account</h2>
+            <p style="color:#666; margin-bottom: 1.5rem;">Join the frequency</p>
+            <form onsubmit="handleAuthSubmit(event)">
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" class="modal-input" placeholder="John Doe" required>
+                </div>
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" class="modal-input" placeholder="name@example.com" required>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" class="modal-input" placeholder="Create a password" required>
+                </div>
+                <button type="submit" class="btn btn-filled" style="width:100%;">Create Account</button>
+            </form>
+            <p class="toggle-text" style="margin-top: 1rem; color: #888;">Already have an account? <span class="toggle-link" onclick="switchAuthMode('login')">Log In</span></p>
         </div>
-    </footer>
+    </div>
+</div>
 
-    <script>
-        // --- State Management ---
+<div id="toast">Authentication Required: Please Log In</div>
+
+<footer>
+    <div class="footer-content">
+        <div class="footer-brand">
+            <h2>Tone Effect</h2>
+            <p>Creating digital experiences that exist at the intersection of sound, visuals, and code.</p>
+        </div>
+        <div class="footer-links">
+            <h4>Navigation</h4>
+            <ul>
+                <li><a href="#about">About</a></li>
+                <li><a href="#work" class="protected-link">Projects</a></li>
+                <li><a href="#support" class="protected-link">Support</a></li>
+            </ul>
+        </div>
+        <div class="footer-links">
+            <h4>Legal</h4>
+            <ul>
+                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">Terms of Service</a></li>
+            </ul>
+        </div>
+        <div class="footer-links">
+            <h4>Social</h4>
+            <ul>
+                <li><a href="https://twitter.com/tone_effect">Twitter / X</a></li>
+                <li><a href="https://www.instagram.com/tone_effect___">Instagram</a></li>
+                <li><a href="https://www.linkedin.com/company/tone-effect">LinkedIn</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="copyright"><p>&copy; 2026 Tone Effect Designing World. All rights reserved.</p></div>
+</footer>
+
+<script>
+    (function() {
+        // ---------- STATE ----------
         let isLoggedIn = false;
 
-        // --- Scroll Animations ---
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: "0px 0px -50px 0px"
-        };
+        // DOM elements
+        const authModal = document.getElementById('authModal');
+        const loginView = document.getElementById('loginView');
+        const signupView = document.getElementById('signupView');
+        const authContainer = document.getElementById('auth-buttons');
+        const toast = document.getElementById('toast');
+        const body = document.body;
+        
+        // restore session
+        const savedSession = localStorage.getItem("toneSession");
+        const savedUser = JSON.parse(localStorage.getItem("toneUser"));
 
+        if (savedSession === "active" && savedUser) {
+            isLoggedIn = true;
+            body.classList.add("logged-in");
+            updateUIForUser(savedUser.name);
+        }
+
+        // ---------- SCROLL ANIMATION (Intersection Observer) ----------
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -796,41 +1008,29 @@
                     observer.unobserve(entry.target);
                 }
             });
-        }, observerOptions);
+        }, { threshold: 0.2, rootMargin: '0px 0px -60px 0px' });
 
-        document.querySelectorAll('[data-animate], .card').forEach(el => {
-            observer.observe(el);
-        });
+        document.querySelectorAll('[data-animate], .card, .section-header').forEach(el => observer.observe(el));
 
-        // --- Header Scroll Effect ---
+        // ---------- HEADER SCROLL ----------
         window.addEventListener('scroll', () => {
             const header = document.querySelector('header');
             if (window.scrollY > 50) {
-                header.style.padding = '15px 5%';
-                header.style.background = 'rgba(5, 5, 5, 0.9)';
+                header.style.padding = '0.8rem 5%';
+                header.style.background = 'rgba(5,5,5,0.95)';
             } else {
-                header.style.padding = '20px 5%';
-                header.style.background = 'rgba(20, 20, 20, 0.6)';
+                header.style.padding = '1.2rem 5%';
+                header.style.background = 'rgba(20,20,20,0.7)';
             }
         });
 
-        // --- Auth Modal Logic ---
-        const authModal = document.getElementById('authModal');
-        const loginView = document.getElementById('loginView');
-        const signupView = document.getElementById('signupView');
-        const authContainer = document.getElementById('auth-buttons');
-        const toast = document.getElementById('toast');
-
-        function openAuthModal(mode) {
+        // ---------- AUTH MODAL ----------
+        window.openAuthModal = (mode) => {
             authModal.classList.add('open');
             switchAuthMode(mode);
-        }
-
-        function closeAuthModal() {
-            authModal.classList.remove('open');
-        }
-
-        function switchAuthMode(mode) {
+        };
+        window.closeAuthModal = () => authModal.classList.remove('open');
+        window.switchAuthMode = (mode) => {
             if (mode === 'signup') {
                 loginView.classList.add('hidden');
                 signupView.classList.remove('hidden');
@@ -838,69 +1038,97 @@
                 signupView.classList.add('hidden');
                 loginView.classList.remove('hidden');
             }
-        }
+        };
 
-        // --- Handle Simulated Login ---
-        function handleAuthSubmit(e) {
-            e.preventDefault(); // Stop page reload
-            
-            // Simulate processing
-            setTimeout(() => {
-                isLoggedIn = true;
-                closeAuthModal();
-                updateUIForUser();
-                document.body.classList.add('logged-in'); // Removes lock icons via CSS
-                showToast("Welcome Back! Access Granted.", "#3333ff");
-            }, 500);
-        }
+        window.handleAuthSubmit = (e) => {
+            e.preventDefault();
 
-        function updateUIForUser() {
-            // Replace Login/Signup buttons with "Welcome" and "Sign Out"
+            const form = e.target;
+            const inputs = form.querySelectorAll("input");
+
+            // LOGIN FORM
+            if (form.closest("#loginView")) {
+                const email = inputs[0].value;
+                const password = inputs[1].value;
+                const savedUser = JSON.parse(localStorage.getItem("toneUser"));
+
+                if (!savedUser) {
+                    showToast("No account found. Please sign up first.");
+                    return;
+                }
+
+                if (savedUser.email === email && savedUser.password === password) {
+                    isLoggedIn = true;
+                    body.classList.add("logged-in");
+                    localStorage.setItem("toneSession", "active");
+                    closeAuthModal();
+                    updateUIForUser(savedUser.name);
+                    showToast("Login successful!", "#10b981");
+                } else {
+                    showToast("Incorrect email or password.");
+                }
+            }
+
+            // SIGNUP FORM
+            if (form.closest("#signupView")) {
+                const name = inputs[0].value;
+                const email = inputs[1].value;
+                const password = inputs[2].value;
+                const user = { name, email, password };
+                localStorage.setItem("toneUser", JSON.stringify(user));
+                showToast("Account created! Please log in.", "#3333ff");
+                switchAuthMode("login");
+            }
+        };
+
+        // ----- UI UPDATE ON LOGIN (DROPDOWN INJECTION) -----
+        function updateUIForUser(name = "User") {
             authContainer.innerHTML = `
-                <span style="color: #fff; font-size: 0.9rem;">Welcome, <strong>User</strong></span>
-                <button onclick="handleSignOut()" class="btn btn-outline" style="padding: 8px 16px; border-color: #ff00cc; color: #ff00cc;">Sign Out</button>
+                <div class="user-menu-container">
+                    <button class="user-profile-btn">
+                        <span>${name}</span>
+                        <span style="font-size: 0.7em;">&#9660;</span>
+                    </button>
+                    <div class="dropdown-content">
+                        <a href="profile.html" class="dropdown-item">My Profile</a>
+                        <a href="admin.html" class="dropdown-item">Admin Panel</a>
+                        <a href="javascript:void(0)" onclick="handleSignOut()" class="dropdown-item logout-item">Logout</a>
+                    </div>
+                </div>
             `;
         }
 
-        function handleSignOut() {
+        window.handleSignOut = () => {
             isLoggedIn = false;
-            document.body.classList.remove('logged-in');
-            // Reset buttons
+            localStorage.removeItem("toneSession");
+            body.classList.remove("logged-in");
             authContainer.innerHTML = `
-                <a onclick="openAuthModal('login')">Log In</a>
-                <a onclick="openAuthModal('signup')" class="btn btn-outline" style="text-decoration: none; padding: 8px 16px;">Sign Up</a>
+                <a href="javascript:void(0)" onclick="openAuthModal('login')" class="auth-btn-login">Log In</a>
+                <a href="javascript:void(0)" onclick="openAuthModal('signup')" class="auth-btn-signup">Sign Up</a>
             `;
             showToast("Logged out successfully.", "#888");
-        }
+        };
 
-        // --- Protection Logic ---
-        // Find all links with class 'protected-link'
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('protected-link') || e.target.closest('.protected-link')) {
+        // ---------- PROTECT PROJECT LINKS ----------
+        document.querySelectorAll('.require-auth').forEach(link => {
+            link.addEventListener('click', (e) => {
                 if (!isLoggedIn) {
-                    e.preventDefault(); // Stop navigation
-                    e.stopPropagation();
-                    openAuthModal('login'); // Open login modal
-                    showToast("Login required to access this content");
+                    e.preventDefault(); // Stop navigation to the project
+                    openAuthModal('login');
+                    showToast('Authentication Required: Please Log In or Sign Up', '#ff004c');
                 }
-                // If logged in, do nothing (let default click happen)
-            }
+            });
         });
 
-        // --- Toast Notification Helper ---
-        function showToast(message, color = "#ff004c") {
-            toast.textContent = message;
+        window.showToast = (msg, color = '#ff004c') => {
+            toast.textContent = msg;
             toast.style.backgroundColor = color;
-            toast.className = "show";
-            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
-        }
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2800);
+        };
 
-        // Close Modal on Outside Click
-        window.onclick = function(event) {
-            if (event.target == authModal) {
-                closeAuthModal();
-            }
-        }
-    </script>
+        window.onclick = (e) => { if (e.target === authModal) closeAuthModal(); };
+    })();
+</script>
 </body>
 </html>

@@ -303,8 +303,8 @@
                     <i class="fas fa-user-astronaut" id="avatarIcon"></i>
                     <div class="avatar-overlay">Change photo</div>
                 </div>
-                <div class="display-name" id="displayNameHeader">Alex Rivera</div>
-                <div style="color: #777; font-size: 0.85rem; margin-top: 5px;">Member since 2025</div>
+                <div class="display-name" id="displayNameHeader">Sreeyug</div>
+                <div style="color: #777; font-size: 0.85rem; margin-top: 5px;">Member since 2026</div>
                 <span style="display:inline-block; border:1px solid #ff00cc; color:#ff00cc; padding:4px 15px; border-radius:20px; font-size:0.7rem; margin-top:15px; font-weight:bold;">PRO CREATOR</span>
             </div>
 
@@ -343,7 +343,7 @@
                     <div style="display:grid; gap:1.5rem;">
                         <div style="display:flex; justify-content:space-between; border-bottom:1px dashed #222; padding-bottom:10px;">
                             <span style="color:#777">Full Name</span>
-                            <span id="displayFullName">Alex Rivera</span>
+                            <span id="displayFullName">Sreeyug</span>
                         </div>
                         <div style="display:flex; justify-content:space-between; border-bottom:1px dashed #222; padding-bottom:10px;">
                             <span style="color:#777">Email</span>
@@ -363,7 +363,7 @@
 
             <div class="tab-content" id="assetsTab">
                 <div class="info-section" id="assetListContainer">
-                    </div>
+                </div>
             </div>
 
             <div class="tab-content" id="activityTab">
@@ -408,7 +408,7 @@
     <div class="modal-content">
         <h2 style="color:#ffaa33; margin-bottom:1rem;"><i class="fas fa-receipt"></i> Receipt</h2>
         <div id="receiptContent" style="background:rgba(255,255,255,0.03); padding:1.5rem; border-radius:1rem; font-size:0.9rem;">
-            </div>
+        </div>
         <button onclick="closeModal('receiptModal')" style="width:100%; margin-top:1.5rem; padding:10px; border-radius:10px; border:none; background:#333; color:white; cursor:pointer;">Close</button>
     </div>
 </div>
@@ -436,9 +436,20 @@
             { id: 'a3', name: 'Free Preset Pack', type: 'image', date: 'Mar 12, 2026', price: '₹0', txn: 'FREE-882', isFree: true }
         ];
 
-        // Load Persistence
+        // 1. ലൊക്കേഷൻ, ബയോ തുടങ്ങിയവയ്ക്കായി മുൻപ് സേവ് ചെയ്ത ഡാറ്റ എടുക്കുന്നു
         const saved = localStorage.getItem('profileData');
-        if (saved) profile = JSON.parse(saved);
+        if (saved) {
+            let savedProfile = JSON.parse(saved);
+            profile = { ...profile, ...savedProfile };
+        }
+
+        // 2. ലോഗിൻ ചെയ്ത യൂസറുടെ പേരും ഇമെയിലും എടുത്ത് പ്രൊഫൈലിലേക്ക് മാറ്റുന്നു
+        const loggedInUserStr = localStorage.getItem('loggedInUser');
+        if (loggedInUserStr) {
+            const loggedInUser = JSON.parse(loggedInUserStr);
+            profile.name = loggedInUser.name;
+            profile.email = loggedInUser.email;
+        }
 
         function updateUI() {
             // Text data
@@ -510,6 +521,14 @@
             profile.location = document.getElementById('editLocation').value;
             profile.bio = document.getElementById('editBio').value;
             localStorage.setItem('profileData', JSON.stringify(profile));
+
+            // പ്രൊഫൈൽ എഡിറ്റ് ചെയ്യുമ്പോൾ പേര് മാറ്റിയാൽ അത് ലോഗിൻ ഡാറ്റയിലും അപ്ഡേറ്റ് ചെയ്യുന്നു
+            if (loggedInUserStr) {
+                let loggedInUser = JSON.parse(loggedInUserStr);
+                loggedInUser.name = profile.name;
+                localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
+            }
+
             updateUI();
             closeModal('editModal');
             showToast('Profile updated!', 'success');

@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tone Effect | Portfolio + Firebase Auth</title>
+    <style>
+        /* --- RESET & VARIABLES --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        :root {
+            --bg: #050505;
+            --bg-light: #121212;
+            --text: #ffffff;
+            --text-muted: #a1a1a1;
+            --glass: rgba(20, 20, 20, 0.7);
+            --gradient: linear-gradient(135deg, #ff00cc, #3333ff);
+            --border-dim: rgba(255,255,255,0.05);
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* --- UTILITY & ANIMATION --- */
+        @keyframes fadeUp {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes neonBreath {
+            0% { text-shadow: 0 0 5px rgba(255,0,204,0.2); }
+            50% { text-shadow: 0 0 20px #3333ff, 0 0 35px #ff00cc; }
+            100% { text-shadow: 0 0 5px rgba(255,0,204,0.2); }
+        }
+
+        .neon-hover {
+            transition: all 0.3s;
+        }
+        .neon-hover:hover {
+            animation: neonBreath 1.5s infinite;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* --- HEADER (STICKY / GLASS) --- */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 5%;
+            background: var(--glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-dim);
+            transition: padding 0.3s, background 0.3s;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-decoration: none;
+            color: #aaa;
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
+
+        .logo:hover {
+            color: transparent;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            transform: scale(1.02);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text);
+            font-size: 0.95rem;
+            font-weight: 500;
+            position: relative;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .nav-links a.standard-link::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient);
+            transition: width 0.25s;
+        }
+
+        .nav-links a.standard-link:hover::after {
+            width: 100%;
+        }
+
+        .protected-link::before {
+            content: ' * ';
+            font-size: 0.8em;
+            opacity: 0.6;
+        }
+        body.logged-in .protected-link::before {
+            content: '';
+        }
+
+        .separator {
+            color: #333;
+            margin: 0 0.5rem;
+        }
+
+        /* --- BUTTONS --- */
+        .btn {
+            display: inline-block;
+            padding: 10px 22px;
+            border-radius: 40px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .btn-outline:hover {
+            border-color: #ff00cc;
+            background: rgba(255,255,255,0.02);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px -10px #ff00cc;
+        }
+
+        .btn-filled {
+            background: white;
+            color: black;
+            border: 1px solid transparent;
+        }
+
+        .btn-filled:hover {
+            background: #f0f0f0;
+            box-shadow: 0 0 20px rgba(255,255,255,0.3);
+            transform: scale(1.02);
+        }
+
+        /* --- AUTH BUTTONS --- */
+        .auth-btn-login {
+            position: relative;
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 8px 16px;
+            transition: all 0.3s;
+            border-radius: 20px;
+        }
+
+        .auth-btn-login:hover {
+            color: #ff00cc;
+            text-shadow: 0 0 8px rgba(255,0,204,0.5);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .auth-btn-signup {
+            position: relative;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: 700;
+            color: white !important;
+            background: linear-gradient(90deg, #ff00cc, #3333ff, #ff00cc);
+            background-size: 200% auto;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.4s ease;
+            box-shadow: 0 0 15px rgba(51, 51, 255, 0.4);
+            animation: gradientPulse 3s infinite linear;
+            display: inline-block;
+        }
+
+        .auth-btn-signup:hover {
+            background-position: right center;
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 0, 204, 0.6);
+        }
+
+        @keyframes gradientPulse {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        /* --- USER DROPDOWN MENU --- */
+        .user-menu-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .user-profile-btn {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 40px;
+            border: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        
+        .user-profile-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #ff00cc;
+            box-shadow: 0 0 15px rgba(255, 0, 204, 0.2);
+        }
+        
+        .dropdown-content {
+            position: absolute;
+            top: 130%;
+            right: 0;
+            background: rgba(15, 15, 15, 0.95);
+            backdrop-filter: blur(10px);
+            min-width: 200px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+            overflow: hidden;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-15px);
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
+            z-index: 200;
+        }
+        
+        .user-menu-container:hover .dropdown-content {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .dropdown-item {
+            display: block;
+            padding: 14px 20px;
+            color: #ddd;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            position: relative;
+        }
+        
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        .dropdown-item:hover {
+            background: rgba(255,255,255,0.03);
+            color: #fff;
+            padding-left: 26px;
+        }
+
+        .dropdown-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: var(--gradient);
+            transform: scaleY(0);
+            transition: 0.2s;
+        }
+
+        .dropdown-item:hover::before {
+            transform: scaleY(1);
+        }
+
+        .logout-item:hover {
+            color: #ff4c4c !important;
+        }
+        
+        .logout-item::before {
+            background: #ff4c4c !important;
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            min-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: radial-gradient(circle at 30% 40%, #1e0a1e, #050505 80%);
+            padding: 0 1.5rem;
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 10vw, 5.5rem);
+            line-height: 1.1;
+            font-weight: 800;
+            background: linear-gradient(145deg, #fff 20%, #aaa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            opacity: 0;
+            animation: fadeUp 0.9s forwards 0.2s;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            max-width: 650px;
+            color: #aaa;
+            margin-top: 1.5rem;
+            opacity: 0;
+            animation: fadeUp 0.9s forwards 0.5s;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            font-size: 0.8rem;
+            color: #555;
+            opacity: 0;
+            animation: fadeUp 0.9s forwards 1.2s, bounce 2.4s infinite 2s;
+        }
+
+        @keyframes bounce {
+            0%,100%{ transform: translateY(0); }
+            50%{ transform: translateY(-8px); }
+        }
+
+        /* --- EDITORIAL --- */
+        .editorial-menu {
+            padding: 8rem 10%;
+            background: #0a0a0a;
+        }
+
+        .reveal-text {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            line-height: 1.4;
+            font-weight: 300;
+            color: #333;
+            transform: translateY(60px);
+            opacity: 0;
+            transition: 1s cubic-bezier(0.2, 0.9, 0.3, 1);
+        }
+
+        .reveal-text.active {
+            opacity: 1;
+            transform: translateY(0);
+            color: #ccc;
+        }
+
+        .reveal-text a {
+            text-decoration: none;
+            color: white;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+            padding: 0 4px;
+        }
+
+        .reveal-text a::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 20%;
+            background: var(--gradient);
+            z-index: -1;
+            opacity: 0.4;
+            transition: height 0.2s;
+        }
+        .reveal-text a:hover::before { height: 100%; opacity: 0.6; }
+
+        /* --- ABOUT SECTION --- */
+        .about-section {
+            padding: 6rem 10%;
+            background: #080808;
+        }
+
+        .about-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .about-text-content, .about-visual {
+            flex: 1 1 300px;
+            opacity: 0;
+            transform: translateX(-30px);
+            transition: 0.8s ease;
+        }
+        .about-visual {
+            transform: translateX(30px);
+        }
+        .about-text-content.active, .about-visual.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .highlight-text {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            border-left: 4px solid #ff00cc;
+            padding-left: 1rem;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+        }
+
+        .about-description {
+            color: #aaa;
+            font-size: 1.1rem;
+            margin: 1.5rem 0 2rem;
+        }
+
+        .tech-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            list-style: none;
+        }
+        .tech-item {
+            background: #1a1a1a;
+            padding: 0.6rem 1.4rem;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            border: 1px solid #2a2a2a;
+            transition: 0.2s;
+            color: #ccc;
+        }
+        .tech-item:hover {
+            border-color: #3333ff;
+            transform: translateY(-2px);
+            background: #222;
+            box-shadow: 0 5px 15px rgba(51,51,255,0.2);
+        }
+
+        .about-visual {
+            position: relative;
+            background: #111;
+            border-radius: 30px;
+            padding: 3rem;
+            border: 1px solid #222;
+            backdrop-filter: blur(5px);
+            min-height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .about-visual .glow {
+            width: 100%;
+            height: 200px;
+            background: radial-gradient(circle, #3333ff 0%, transparent 70%);
+            filter: blur(50px);
+            opacity: 0.3;
+        }
+        .about-visual h3 {
+            position: absolute;
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            mix-blend-mode: overlay;
+            letter-spacing: 8px;
+        }
+
+        /* --- PROJECTS --- */
+        .downloads-section {
+            padding: 6rem 10%;
+        }
+        .section-header {
+            margin-bottom: 4rem;
+            opacity: 0;
+            transform: translateY(25px);
+            transition: 0.7s;
+        }
+        .section-header.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .section-title {
+            font-size: clamp(2rem,5vw,3rem);
+            background: linear-gradient(to right, #fff, #888);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 2.5rem;
+        }
+        .card {
+            background: #121212;
+            padding: 2.5rem 2rem;
+            border-radius: 24px;
+            border: 1px solid #252525;
+            transition: 0.3s;
+            opacity: 0;
+            transform: translateY(25px);
+        }
+        .card.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: #444;
+            box-shadow: 0 20px 30px -10px black;
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: var(--gradient);
+            transform: scaleX(0);
+            transition: 0.3s;
+        }
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+        .card h3 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        .card p {
+            color: #777;
+            margin-bottom: 2rem;
+        }
+
+        /* --- SUPPORT SECTION --- */
+        .support-section {
+            padding: 6rem 10%;
+            background: linear-gradient(180deg, #080808, #030303);
+        }
+        .support-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+        .support-card {
+            background: #111;
+            padding: 2rem;
+            border-radius: 18px;
+            border: 1px solid #2a2a2a;
+            margin-bottom: 1.8rem;
+            transition: 0.2s;
+        }
+        .support-card:hover {
+            border-color: #ff00cc;
+        }
+        .support-card h4 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        .support-card p {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        .support-link {
+            display: inline-block;
+            margin-top: 1rem;
+            color: #6a6aff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .support-link:hover {
+            color: #ff00cc;
+            transform: translateX(5px);
+        }
+
+        .faq-item {
+            border-bottom: 1px solid #222;
+            padding: 1.2rem 0;
+        }
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+        .faq-question {
+            font-weight: 600;
+            color: #ddd;
+        }
+        .faq-answer {
+            color: #777;
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+        }
+
+        /* --- MODAL --- */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s;
+        }
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background: #181818;
+            padding: 2.5rem;
+            border-radius: 32px;
+            max-width: 450px;
+            width: 90%;
+            border: 1px solid #333;
+            transform: scale(0.85);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.open .modal-content {
+            transform: scale(1);
+        }
+        .close-modal {
+            position: absolute;
+            top: 1.2rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+        .close-modal:hover {
+            color: white;
+        }
+        .auth-view {
+            transition: opacity 0.2s;
+        }
+        .form-title {
+            font-size: 2.2rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        .input-group {
+            text-align: left;
+            margin-bottom: 1.5rem;
+        }
+        .input-group label {
+            color: #aaa;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            margin-bottom: 0.3rem;
+            display: block;
+        }
+        .modal-input {
+            width: 100%;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            padding: 1rem;
+            border-radius: 14px;
+            color: white;
+            outline: none;
+        }
+        .modal-input:focus {
+            border-color: #ff00cc;
+            box-shadow: 0 0 10px #ff00cc40;
+        }
+        .toggle-link {
+            color: #6a6aff;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .hidden {
+            display: none;
+        }
+
+        /* --- TOAST --- */
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff004c;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 60px;
+            font-weight: 600;
+            box-shadow: 0 10px 25px #ff004c80;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s;
+            z-index: 1100;
+            white-space: nowrap;
+        }
+        #toast.show {
+            opacity: 1;
+            visibility: visible;
+            bottom: 40px;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background: #070707;
+            padding: 4rem 10% 2rem;
+            border-top: 1px solid #222;
+        }
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+        .footer-brand p {
+            max-width: 280px;
+            color: #888;
+        }
+        .footer-links h4 {
+            color: white;
+            margin-bottom: 1.2rem;
+        }
+        .footer-links ul {
+            list-style: none;
+        }
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+        .footer-links a {
+            color: #888;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+        .footer-links a:hover {
+            color: #ff00cc;
+            padding-left: 5px;
+        }
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            color: #555;
+            border-top: 1px solid #222;
+        }
+
+        @media (max-width: 900px) {
+            .support-grid { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+        }
+        @media (max-width: 700px) {
+            .about-container { flex-direction: column; }
+            .footer-content { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="https://www.instagram.com/tone_effect___" class="logo neon-hover">Tone Effect</a>
+    <nav class="nav-links">
+        <a href="#about" class="standard-link">About</a>
+        <a href="admin.html" class="protected-link standard-link">Admin</a>
+        <a href="#work" class="protected-link standard-link">Projects</a>
+        <a href="#support" class="protected-link standard-link">Support</a>
+        <span class="separator">|</span>
+        <div id="auth-buttons" style="display: flex; gap: 15px; align-items: center;">
+            <!-- Dynamically replaced by JS -->
+        </div>
+    </nav>
+</header>
+
+<section class="hero">
+    <h1>Design. Code.<br>Frequency.</h1>
+    <p>A digital playground focusing on sonic visuals, cinematic web experiences, and high-performance interfaces.</p>
+    <div class="scroll-indicator">Scroll to Explore</div>
+</section>
+
+<section class="editorial-menu">
+    <div class="reveal-text" data-animate>
+        We build <a href="#">immersive</a> digital<br>landscapes that <a href="#">resonate</a> with<br>your audience.
+    </div>
+</section>
+
+<section id="about" class="about-section">
+    <div class="about-container">
+        <div class="about-text-content" data-animate>
+            <span class="highlight-text">The Mission</span>
+            <p class="about-description">
+                At Tone Effect, our mission is to redefine visual storytelling by blending aesthetic precision with strategic impact. We are dedicated to crafting unique digital identities that resonate deeply and leave a lasting impression, ensuring every design sets the perfect tone for your brand’s success.
+            </p>
+            <ul class="tech-list">
+                <li class="tech-item">Creative Direction</li>
+                <li class="tech-item">UI/UX Strategy</li>
+                <li class="tech-item">Motion Graphics</li>
+                <li class="tech-item">Frontend Architecture</li>
+                <li class="tech-item">Immersive WebGL</li>
+            </ul>
+        </div>
+        <div class="about-visual" data-animate>
+            <div class="glow"></div>
+            <h3>VISUAL<br>CORE</h3>
+        </div>
+    </div>
+</section>
+
+<section id="work" class="downloads-section">
+    <div class="section-header" data-animate>
+        <h2 class="section-title">PROJECTS</h2>
+    </div>
+    <div class="grid-container">
+        <div class="card" data-animate>
+            <h3>Premium Presets</h3>
+            <p>A high-contrast dashboard designed for music production analytics.</p>
+            <a href="Premium.html" target="_blank" class="btn btn-outline require-auth">View Case Study</a>
+        </div>
+        <div class="card" data-animate>
+            <h3>Free Presets</h3>
+            <p>Audio-reactive visualizers created for a fintech startup launch.</p>
+            <a href="Free.html" target="_blank" class="btn btn-outline require-auth">Listen & Watch</a>
+        </div>
+        <div class="card" data-animate>
+            <h3>Lightroom Presets</h3>
+            <p>Minimalist personal website for a Fortune 500 executive.</p>
+            <a href="Premium_lightroom.html" target="_blank" class="btn btn-outline require-auth">Visit Site</a>
+        </div>
+    </div>
+</section>
+
+<section id="support" class="support-section">
+    <div class="section-header" data-animate>
+        <h2 class="section-title">Support Console</h2>
+    </div>
+    <div class="support-grid">
+        <div data-animate>
+            <div class="support-card">
+                <h4>Knowledge Base</h4>
+                <p>Browse documentation, API references, and design guidelines.</p>
+                <span class="support-link require-auth">Browse Articles &rarr;</span>
+            </div>
+            <div class="support-card">
+                <h4>Submit a Ticket</h4>
+                <p>Having technical issues? Open a secure support request.</p>
+                <span class="support-link require-auth">Open Ticket &rarr;</span>
+            </div>
+            <div class="support-card">
+                <h4>Community</h4>
+                <p>Join our Discord server to chat with other creators.</p>
+                <span class="support-link require-auth">Join Server &rarr;</span>
+            </div>
+        </div>
+        <div style="padding-left: 0.5rem;" data-animate>
+            <span class="highlight-text">Common Queries</span>
+            <div class="faq-item">
+                <p class="faq-question">Do you offer freelance services?</p>
+                <p class="faq-answer">Yes, currently accepting new contracts for Q3 2026.</p>
+            </div>
+            <div class="faq-item">
+                <p class="faq-question">What tech stack do you use?</p>
+                <p class="faq-answer">Primarily Vanilla JS, React, and WebGL (Three.js) for frontend work.</p>
+            </div>
+            <div class="faq-item">
+                <p class="faq-question">How can I download assets?</p>
+                <p class="faq-answer">Log in to your account to access purchased assets from the resources tab.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="modal-overlay" id="authModal">
+    <div class="modal-content">
+        <button class="close-modal" onclick="closeAuthModal()">&times;</button>
+        <div id="loginView" class="auth-view">
+            <h2 class="form-title">Welcome Back</h2>
+            <p style="color:#666; margin-bottom: 1.5rem;">Access your dashboard</p>
+            <form id="firebaseLoginForm" onsubmit="handleAuthSubmit(event, 'login')">
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" class="modal-input" placeholder="name@example.com" required>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" class="modal-input" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-filled" style="width:100%;">Log In</button>
+            </form>
+            <p class="toggle-text" style="margin-top: 1rem; color: #888;">Don't have an account? <span class="toggle-link" onclick="switchAuthMode('signup')">Sign Up</span></p>
+        </div>
+        <div id="signupView" class="auth-view hidden">
+            <h2 class="form-title">Create Account</h2>
+            <p style="color:#666; margin-bottom: 1.5rem;">Join the frequency</p>
+            <form id="firebaseSignupForm" onsubmit="handleAuthSubmit(event, 'signup')">
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" id="signupName" class="modal-input" placeholder="John Doe" required>
+                </div>
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="signupEmail" class="modal-input" placeholder="name@example.com" required>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="signupPassword" class="modal-input" placeholder="Create a password" required>
+                </div>
+                <button type="submit" class="btn btn-filled" style="width:100%;">Create Account</button>
+            </form>
+            <p class="toggle-text" style="margin-top: 1rem; color: #888;">Already have an account? <span class="toggle-link" onclick="switchAuthMode('login')">Log In</span></p>
+        </div>
+    </div>
+</div>
+
+<div id="toast">Authentication Required: Please Log In</div>
+
+<footer>
+    <div class="footer-content">
+        <div class="footer-brand">
+            <h2>Tone Effect</h2>
+            <p>Creating digital experiences that exist at the intersection of sound, visuals, and code.</p>
+        </div>
+        <div class="footer-links">
+            <h4>Navigation</h4>
+            <ul>
+                <li><a href="#about">About</a></li>
+                <li><a href="#work" class="require-auth">Projects</a></li>
+                <li><a href="#support" class="require-auth">Support</a></li>
+            </ul>
+        </div>
+        <div class="footer-links">
+            <h4>Legal</h4>
+            <ul>
+                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">Terms of Service</a></li>
+            </ul>
+        </div>
+        <div class="footer-links">
+            <h4>Social</h4>
+            <ul>
+                <li><a href="https://twitter.com/tone_effect">Twitter / X</a></li>
+                <li><a href="https://www.instagram.com/tone_effect___">Instagram</a></li>
+                <li><a href="https://www.linkedin.com/company/tone-effect">LinkedIn</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="copyright"><p>&copy; 2026 Tone Effect Designing World. All rights reserved.</p></div>
+</footer>
+
+<!-- Firebase SDK (Compat) -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+<script>
+    (function() {
+        // ----- YOUR FIREBASE CONFIG (linked) -----
+        const firebaseConfig = {
+            apiKey: "AIzaSyAz8RgvajyERPw7iFeDXRerdV9vnXyf4nI",
+            authDomain: "creative-portfolio-f5a1e.firebaseapp.com",
+            projectId: "creative-portfolio-f5a1e",
+            storageBucket: "creative-portfolio-f5a1e.firebasestorage.app",
+            messagingSenderId: "701627578760",
+            appId: "1:701627578760:web:8de2d3a2517caf4622223d",
+            measurementId: "G-YB2V7FRSQG"
+        };
+
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let isLoggedIn = false;
+        const authModal = document.getElementById('authModal');
+        const loginView = document.getElementById('loginView');
+        const signupView = document.getElementById('signupView');
+        const authContainer = document.getElementById('auth-buttons');
+        const toast = document.getElementById('toast');
+        const body = document.body;
+
+        // ---------- FIREBASE AUTH STATE LISTENER ----------
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                isLoggedIn = true;
+                body.classList.add("logged-in");
+                
+                // Fetch user data from Firestore to get their real name
+                db.collection('users').doc(user.uid).get().then((doc) => {
+                    let displayName = user.email.split('@')[0]; // fallback
+                    if (doc.exists && doc.data().name) {
+                        displayName = doc.data().name;
+                    }
+                    updateUIForUser(displayName);
+                }).catch(err => {
+                    console.log("Error fetching user data:", err);
+                    updateUIForUser(user.email.split('@')[0]);
+                });
+
+            } else {
+                isLoggedIn = false;
+                body.classList.remove("logged-in");
+                // show login/signup buttons
+                authContainer.innerHTML = `
+                    <a href="javascript:void(0)" onclick="openAuthModal('login')" class="auth-btn-login">Log In</a>
+                    <a href="javascript:void(0)" onclick="openAuthModal('signup')" class="auth-btn-signup">Sign Up</a>
+                `;
+            }
+        });
+
+        // ---------- UI CONTROLS (exposed globally) ----------
+        window.openAuthModal = (mode) => {
+            authModal.classList.add('open');
+            switchAuthMode(mode);
+        };
+        window.closeAuthModal = () => authModal.classList.remove('open');
+        window.switchAuthMode = (mode) => {
+            if (mode === 'signup') {
+                loginView.classList.add('hidden');
+                signupView.classList.remove('hidden');
+            } else {
+                signupView.classList.add('hidden');
+                loginView.classList.remove('hidden');
+            }
+        };
+
+        window.showToast = (msg, color = '#ff004c') => {
+            toast.textContent = msg;
+            toast.style.backgroundColor = color;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2800);
+        };
+
+        // ---------- FIREBASE LOGIN/SIGNUP ----------
+        window.handleAuthSubmit = (e, type) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.innerText = "Processing...";
+            btn.style.pointerEvents = "none";
+
+            if (type === 'login') {
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+
+                auth.signInWithEmailAndPassword(email, password)
+                    .then(() => {
+                        closeAuthModal();
+                        showToast("Login successful!", "#10b981");
+                        e.target.reset();
+                    })
+                    .catch((error) => {
+                        showToast(error.message);
+                    })
+                    .finally(() => {
+                        btn.innerText = "Log In";
+                        btn.style.pointerEvents = "auto";
+                    });
+            } else if (type === 'signup') {
+                const name = document.getElementById('signupName').value;
+                const email = document.getElementById('signupEmail').value;
+                const password = document.getElementById('signupPassword').value;
+
+                auth.createUserWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        // Create user document in Firestore
+                        return db.collection('users').doc(userCredential.user.uid).set({
+                            name: name,
+                            email: email,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            avatar: 'astronaut',
+                            stats: { projects: 0, downloads: 0 }
+                        });
+                    })
+                    .then(() => {
+                        closeAuthModal();
+                        showToast("Account created successfully!", "#3333ff");
+                        e.target.reset();
+                    })
+                    .catch((error) => {
+                        showToast(error.message);
+                    })
+                    .finally(() => {
+                        btn.innerText = "Create Account";
+                        btn.style.pointerEvents = "auto";
+                    });
+            }
+        };
+
+        // ---------- DROPDOWN INJECTION ----------
+        function updateUIForUser(name) {
+            authContainer.innerHTML = `
+                <div class="user-menu-container">
+                    <button class="user-profile-btn">
+                        <span>${name}</span>
+                        <span style="font-size: 0.7em;">&#9660;</span>
+                    </button>
+                    <div class="dropdown-content">
+                        <a href="profile.html" class="dropdown-item">My Profile</a>
+                        <a href="admin.html" class="dropdown-item">Admin Panel</a>
+                        <a href="javascript:void(0)" onclick="handleSignOut()" class="dropdown-item logout-item">Logout</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.handleSignOut = () => {
+            auth.signOut().then(() => {
+                showToast("Logged out successfully.", "#888");
+            }).catch((error) => {
+                showToast("Error logging out.");
+            });
+        };
+
+        // ---------- PROTECT PROJECT LINKS (require-auth) ----------
+        document.querySelectorAll('.require-auth').forEach(link => {
+            link.addEventListener('click', (e) => {
+                if (!isLoggedIn) {
+                    e.preventDefault();
+                    openAuthModal('login');
+                    showToast('Authentication Required: Please Log In or Sign Up', '#ff004c');
+                }
+            });
+        });
+
+        // Close modal when clicking outside
+        window.onclick = (e) => { if (e.target === authModal) closeAuthModal(); };
+
+        // ---------- SCROLL ANIMATION ----------
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.2, rootMargin: '0px 0px -60px 0px' });
+        document.querySelectorAll('[data-animate], .card, .section-header').forEach(el => observer.observe(el));
+
+        // ---------- HEADER SCROLL ----------
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.style.padding = '0.8rem 5%';
+                header.style.background = 'rgba(5,5,5,0.95)';
+            } else {
+                header.style.padding = '1.2rem 5%';
+                header.style.background = 'rgba(20,20,20,0.7)';
+            }
+        });
+
+        // Initialize default auth buttons (since no user is logged in at start)
+        // But the onAuthStateChanged will fire immediately, setting the correct UI.
+        // However, to avoid a flash of empty container, set initial fallback:
+        authContainer.innerHTML = `
+            <a href="javascript:void(0)" onclick="openAuthModal('login')" class="auth-btn-login">Log In</a>
+            <a href="javascript:void(0)" onclick="openAuthModal('signup')" class="auth-btn-signup">Sign Up</a>
+        `;
+    })();
+</script>
+</body>
+</html>

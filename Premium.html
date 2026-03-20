@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tone Effect | Premium Presets with Payment</title>
+<style>
+  :root {
+    --text: #ffffff;
+    --gradient: linear-gradient(135deg, #ff00cc, #3333ff);
+    --glass-bg: rgba(10, 10, 10, 0.7);
+    --text-main: #cccccc;
+    --accent-gradient: linear-gradient(135deg, #ff00cc, #3333ff);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+
+  body {
+    min-height: 100vh;
+    background: radial-gradient(circle at center, #1a0b1a 0%, #050505 70%);
+    color: var(--text);
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(125deg, 
+      rgba(255, 0, 204, 0.25) 0%, 
+      rgba(51, 51, 255, 0.35) 30%, 
+      rgba(255, 0, 204, 0.2) 60%, 
+      rgba(20, 30, 180, 0.4) 80%, 
+      rgba(255, 0, 204, 0.25) 100%);
+    background-size: 300% 300%;
+    animation: flowAuto 14s cubic-bezier(0.45, 0.05, 0.2, 0.99) infinite alternate;
+    pointer-events: none;
+    z-index: 0;
+    mix-blend-mode: overlay;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at 30% 40%, rgba(255, 120, 240, 0.25) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(80, 80, 255, 0.35) 0%, transparent 45%);
+    background-size: 200% 200%;
+    animation: breathe 9s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+    mix-blend-mode: screen;
+  }
+
+  @keyframes flowAuto {
+    0% { background-position: 0% 0%; }
+    25% { background-position: 40% 60%; }
+    50% { background-position: 80% 30%; }
+    75% { background-position: 20% 80%; }
+    100% { background-position: 100% 100%; }
+  }
+
+  @keyframes breathe {
+    0% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.05); }
+    100% { opacity: 0.4; transform: scale(1); }
+  }
+
+  /* Payment Status Notification */
+  .payment-status {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 2000;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    background: rgba(18, 18, 28, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 200, 255, 0.3);
+    color: white;
+    font-weight: 600;
+    transform: translateX(120%);
+    transition: transform 0.3s ease;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+
+  .payment-status.show {
+    transform: translateX(0);
+  }
+
+  .payment-status.success {
+    border-left: 4px solid #00ff88;
+    box-shadow: 0 0 20px #00ff8866;
+  }
+
+  .payment-status.error {
+    border-left: 4px solid #ff3366;
+    box-shadow: 0 0 20px #ff336666;
+  }
+
+  .payment-status.info {
+    border-left: 4px solid #3399ff;
+    box-shadow: 0 0 20px #3399ff66;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 5%;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px); 
+    -webkit-backdrop-filter: blur(12px);
+    transition: padding 0.3s;
+  }
+
+  .logo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    cursor: pointer;
+    color: #666; 
+    transition: all 0.4s ease;
+    text-transform: uppercase;
+    text-decoration: none; 
+  }
+  .logo:hover {
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent; 
+    animation: neonPulse 1.5s infinite;
+    transform: scale(1.05);
+  }
+
+  .nav-tabs {
+    display: flex;
+    gap: 1.8rem;
+    align-items: center;
+  }
+
+  .tab-btn {
+    background: transparent;
+    border: none;
+    color: #cccccc;
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 0.4rem 0.2rem;
+    position: relative;
+    transition: color 0.25s;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+  }
+
+  .tab-btn::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0%;
+    height: 2px;
+    background: linear-gradient(90deg, #ff00cc, #3333ff);
+    transition: width 0.3s ease;
+    border-radius: 4px;
+  }
+
+  .tab-btn:hover {
+    color: white;
+  }
+
+  .tab-btn:hover::after {
+    width: 100%;
+  }
+
+  .tab-btn.active {
+    color: white;
+  }
+
+  .tab-btn.active::after {
+    width: 100%;
+    background: linear-gradient(90deg, #ff88cc, #8888ff);
+  }
+
+  .back-btn {
+    background: transparent;
+    border: 1.8px solid rgba(255, 180, 255, 0.5);
+    color: #ffddff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.4rem 1.3rem;
+    border-radius: 40px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: 0.2s;
+    backdrop-filter: blur(5px);
+    margin-left: 0.5rem;
+    display: none; 
+  }
+
+  .back-btn:hover {
+    background: linear-gradient(135deg, #ff00cc80, #3333ff80);
+    border-color: #ffccff;
+    color: white;
+    box-shadow: 0 0 22px #ff99ff;
+    transform: scale(1.02);
+  }
+
+  footer {
+    padding: 20px;
+    text-align: center;
+    background: #070707b3;
+    backdrop-filter: blur(10px);
+    color: #aaa;
+    font-size: 0.8rem;
+    position: relative;
+    z-index: 10;
+    border-top: 1px solid rgba(255,0,204,0.1);
+  }
+
+  .page-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 5;
+  }
+
+  #home-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    width: 100%;
+  }
+
+  .gallery-title {
+    font-size: 2.7rem;
+    background: linear-gradient(130deg, #ff99ee, #aaccff, #ff99ee);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 0.2rem;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .subtitle {
+    color: #bbb;
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+    backdrop-filter: blur(4px);
+    background: rgba(0,0,0,0.2);
+    padding: 4px 20px;
+    border-radius: 60px;
+  }
+
+  .price-tag {
+    background: linear-gradient(135deg, #ff00cc, #3333ff);
+    color: white;
+    padding: 4px 15px;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-left: 10px;
+    display: inline-block;
+  }
+
+  .gallery-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 1000px;
+    height: 450px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform-style: preserve-3d;
+    margin: 0 auto;
+    cursor: pointer;
+  }
+
+  .preset-card {
+    position: absolute;
+    width: 280px;
+    height: 300px;
+    border-radius: 15px;
+    overflow: visible;
+    background: #111;
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: all 0.6s cubic-bezier(0.2, 0.85, 0.3, 1.05);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.7);
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    pointer-events: auto;
+  }
+
+  .card-image-wrapper {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: 15px;
+  }
+
+  .preset-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: translateZ(0);
+    transition: transform 0.5s ease;
+    backface-visibility: hidden;
+    pointer-events: none;
+  }
+
+  .preset-card:hover {
+    transform: translateY(-8px) translateZ(0) scale(1.01);
+    box-shadow: 0 25px 45px rgba(255,0,204,0.3);
+    border-color: #ff88ff66;
+  }
+
+  .preset-card:hover img {
+    transform: scale(1.1) translateZ(0);
+  }
+
+  .card-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px 15px;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+  }
+
+  .preset-card:hover .card-overlay {
+    opacity: 1;
+  }
+
+  .card-overlay h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 2px 12px black;
+  }
+
+  .download-btn {
+    padding: 8px 22px;
+    background: transparent;
+    border: 1.5px solid rgba(255, 255, 255, 0.8);
+    color: white;
+    border-radius: 40px;
+    font-weight: 600;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    transition: 0.3s;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    pointer-events: auto;
+    backdrop-filter: blur(5px);
+    position: relative;
+    z-index: 200;
+  }
+
+  .download-btn:hover {
+    background: var(--gradient);
+    border-color: transparent;
+    box-shadow: 0 0 30px #ff00cc;
+    transform: scale(1.05);
+    color: white;
+  }
+
+  .download-btn.loading {
+    opacity: 0.7;
+    cursor: wait;
+    pointer-events: none;
+    padding-right: 40px;
+  }
+
+  .download-btn.loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    border: 2px solid transparent;
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: translateY(-50%) rotate(0deg); }
+    100% { transform: translateY(-50%) rotate(360deg); }
+  }
+
+  .preset-card.active { transform: translate3d(0, 0, 200px); z-index: 10; opacity: 1; }
+  .preset-card.prev { transform: translate3d(-250px, 0, 0) rotateY(30deg) scale(0.8); z-index: 5; opacity: 0.6; }
+  .preset-card.next { transform: translate3d(250px, 0, 0) rotateY(-30deg) scale(0.8); z-index: 5; opacity: 0.6; }
+  .preset-card.hidden { transform: translate3d(0, 0, -500px); opacity: 0; z-index: 0; }
+
+  #contact-page {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    width: 100%;
+  }
+
+  .contact-container {
+    max-width: 700px;
+    width: 100%;
+    margin: 2rem auto;
+    background: rgba(18, 18, 28, 0.7);
+    backdrop-filter: blur(16px);
+    border-radius: 40px;
+    padding: 3rem 2.5rem;
+    border: 1px solid rgba(255, 200, 255, 0.15);
+    box-shadow: 0 30px 50px -20px black;
+  }
+
+  .contact-container h2 {
+    font-size: 2.5rem;
+    background: linear-gradient(135deg, #ffaaff, #b5b5ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .contact-container p {
+    text-align: center;
+    color: #bbb;
+    margin-bottom: 2.5rem;
+    font-size: 1.1rem;
+  }
+
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.8rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #c7b0ff;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    background: rgba(5, 5, 18, 0.7);
+    border: 1px solid rgba(255, 150, 255, 0.2);
+    border-radius: 40px;
+    padding: 1rem 1.5rem;
+    color: white;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s;
+    backdrop-filter: blur(4px);
+  }
+
+  .form-group textarea {
+    border-radius: 30px;
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus {
+    border-color: #ff88ff;
+    box-shadow: 0 0 25px #ff88ff66;
+  }
+
+  .submit-btn {
+    background: linear-gradient(135deg, #ff00cc, #3333ff);
+    border: none;
+    color: white;
+    padding: 1rem;
+    font-weight: 700;
+    font-size: 1.2rem;
+    border-radius: 60px;
+    cursor: pointer;
+    transition: 0.3s;
+    letter-spacing: 1.5px;
+    margin-top: 1rem;
+    box-shadow: 0 10px 30px -8px #a055ff;
+  }
+
+  .submit-btn:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 40px #ff22ee, 0 10px 30px -5px #3a1faa;
+  }
+
+  .contact-info {
+    margin-top: 2rem;
+    text-align: center;
+    color: #bbbbee;
+    font-size: 0.95rem;
+  }
+
+  .contact-info a {
+    color: #d9b0ff;
+    text-decoration: none;
+    border-bottom: 1px dotted;
+  }
+</style>
+<!-- Load EasyPayIO Gateway Script -->
+<script src="easypayio_gateway.js"></script>
+</head>
+<body>
+
+  <!-- Payment Status Notification -->
+  <div id="paymentStatus" class="payment-status"></div>
+
+  <header>
+    <a href="https://www.instagram.com/tone_effect___/" target="_blank" class="logo">Tone Effect</a>
+    <div class="nav-tabs">
+      <a href="home.html" style="text-decoration: none;">
+      <button class="tab-btn active" id="homeTab">HOME</button></a>
+      <button class="tab-btn" id="contactTab">CONTACT</button>
+      <button class="back-btn" id="backBtn">BACK</button>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <div id="home-page">
+      <h1 class="gallery-title">✦ PREMIUM PRESETS ✦</h1>
+      <p class="subtitle">Elevate your tones with one click. <span class="price-tag">₹350 each</span></p>
+      
+      <div class="gallery-wrapper" id="cardStack">
+      
+        <div class="preset-card" data-index="0" data-preset="Cinematic Moody" data-img-src="47449.jpg">
+          <div class="card-image-wrapper">
+            <img src="47449.jpg" alt="Cinematic">
+          </div>
+          <div class="card-overlay">
+            <h3>Voilet Heaven</h3>
+            <button class="download-btn" data-preset="Cinematic Moody">BUY ₹350</button>
+          </div>
+        </div>
+
+        <div class="preset-card" data-index="1" data-preset="Neon Nights" data-img-src="47453.jpg">
+          <div class="card-image-wrapper">
+            <img src="47453.jpg" alt="Neon">
+          </div>
+          <div class="card-overlay">
+            <h3>Danger Zone</h3>
+            <button class="download-btn" data-preset="Neon Nights">BUY ₹350</button>
+          </div>
+        </div>
+
+        <div class="preset-card" data-index="2" data-preset="Vintage Film" data-img-src="48430.jpg">
+          <div class="card-image-wrapper">
+            <img src="48430.png" alt="Vintage">
+          </div>
+          <div class="card-overlay">
+            <h3>way of Heaven</h3>
+            <button class="download-btn" data-preset="Vintage Film">BUY ₹350</button>
+          </div>
+        </div>
+
+        <div class="preset-card" data-index="3" data-preset="Matte Black" data-img-src="49984.jpg">
+          <div class="card-image-wrapper">
+            <img src="49984.jpg" alt="Matte">
+          </div>
+          <div class="card-overlay">
+            <h3>The Weakend</h3>
+            <button class="download-btn" data-preset="Matte Black">BUY ₹350</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="contact-page">
+      <div class="contact-container">
+        <h2>get in touch</h2>
+        <p>we reply within 24h ✦</p>
+
+        <form class="contact-form" id="demoContactForm" onsubmit="return handleContactSubmit(event)">
+          <div class="form-group">
+            <label for="name">your name</label>
+            <input type="text" id="name" name="name" placeholder="Alex Rivera" required>
+          </div>
+          <div class="form-group">
+            <label for="email">email</label>
+            <input type="email" id="email" name="email" placeholder="alex@tone.com" required>
+          </div>
+          <div class="form-group">
+            <label for="message">message</label>
+            <textarea id="message" name="message" placeholder="Tell us about your preset needs..."></textarea>
+          </div>
+          <button type="submit" class="submit-btn">send message</button>
+        </form>
+
+        <div class="contact-info">
+          <p>✨ instagram: <a href="https://www.instagram.com/tone_effect___/" target="_blank">@tone_effect___</a> &nbsp; | &nbsp; ✉️ tone@effect.demo</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>© 2026 Tone Effect — Secure Payments by EasyPayIO</footer>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <!-- Firebase configuration embedded directly -->
+  <script>
+    // Your Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyAz8RgvajyERPw7iFeDXRerdV9vnXyf4nI",
+        authDomain: "creative-portfolio-f5a1e.firebaseapp.com",
+        projectId: "creative-portfolio-f5a1e",
+        storageBucket: "creative-portfolio-f5a1e.firebasestorage.app",
+        messagingSenderId: "701627578760",
+        appId: "1:701627578760:web:8de2d3a2517caf4622223d",
+        measurementId: "G-YB2V7FRSQG"
+    };
+
+    // Initialize Firebase
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+        console.log("Firebase initialized (Premium Page)");
+    }
+  </script>
+
+<script>
+    (function() {
+      // Constants
+      const PAYMENT_AMOUNT = 350; // Fixed amount ₹350
+      
+      // --- FIREBASE SETUP ---
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+      let currentUser = null;
+
+      // Track logged-in user
+      auth.onAuthStateChanged(user => {
+        currentUser = user;
+      });
+      // ----------------------
+
+      // DOM Elements
+      const homeTab = document.getElementById('homeTab');
+      const contactTab = document.getElementById('contactTab');
+      const backBtn = document.getElementById('backBtn');
+      const homePage = document.getElementById('home-page');
+      const contactPage = document.getElementById('contact-page');
+      const statusDiv = document.getElementById('paymentStatus');
+      const cards = document.querySelectorAll('.preset-card');
+      const wrapper = document.getElementById('cardStack');
+      
+      let currentIndex = 0;
+      let autoSlideInterval;
+
+      function showPaymentStatus(message, type = 'success') {
+        statusDiv.textContent = message;
+        statusDiv.className = 'payment-status show ' + type;
+        setTimeout(() => { statusDiv.classList.remove('show'); }, 5000);
+      }
+
+      async function downloadImage(presetName, imgSrc) {
+        try {
+          showPaymentStatus(`🔄 Downloading ${presetName}...`, 'info');
+          const response = await fetch(imgSrc, { mode: 'cors', cache: 'no-cache', headers: { 'Accept': 'image/*' } });
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          
+          const blob = await response.blob();
+          if (!blob.type.startsWith('image/')) throw new Error('Not an image file');
+          
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${presetName.toLowerCase().replace(/\s+/g, '_')}_preset.jpg`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          
+          showPaymentStatus(`✅ ${presetName} downloaded successfully!`, 'success');
+        } catch (error) {
+          console.error('Download error:', error);
+          showPaymentStatus(`❌ Download failed: ${error.message || 'Please try again'}`, 'error');
+        }
+      }
+
+      async function purchasePreset(presetName, imgSrc, button) {
+        if (typeof window.EasyPayIO === 'undefined') {
+          showPaymentStatus('❌ Payment gateway not available', 'error');
+          return;
+        }
+
+        const originalText = button.textContent;
+        button.classList.add('loading');
+        button.textContent = 'PROCESSING...';
+        showPaymentStatus('🔄 Initializing secure payment...', 'info');
+
+        window.EasyPayIO.pay({
+          amount: PAYMENT_AMOUNT,
+          productName: `Lightroom Preset: ${presetName}`,
+          productDescription: `Premium Lightroom preset - ${presetName}`,
+          userEmail: currentUser ? currentUser.email : '', 
+          onSuccess: function(response) {
+            button.classList.remove('loading');
+            button.textContent = 'BUY ₹350';
+            showPaymentStatus(`✅ Payment successful! Downloading ${presetName}...`, 'success');
+            
+            // --- SAVE TO FIRESTORE ---
+            if (currentUser) {
+              db.collection('users').doc(currentUser.uid).collection('purchases').add({
+                name: presetName,
+                price: PAYMENT_AMOUNT,
+                transactionId: response.transactionId,
+                date: firebase.firestore.FieldValue.serverTimestamp(),
+                type: 'image',
+                isFree: false
+              }).then(() => console.log("Transaction recorded in database!"))
+                .catch(err => console.error("Database error:", err));
+            } else {
+              console.warn("User not logged in, purchase won't show in profile or admin.");
+            }
+            // -------------------------
+
+            setTimeout(() => { downloadImage(presetName, imgSrc); }, 1000);
+          },
+          onFailure: function(error) {
+            button.classList.remove('loading');
+            button.textContent = originalText;
+            let errorMessage = '❌ Payment failed';
+            if (error.code === 'USER_CANCELLED') errorMessage = '❌ Payment cancelled';
+            else if (error.code === 'POPUP_BLOCKED') errorMessage = '❌ Please allow popups for payments';
+            showPaymentStatus(errorMessage, 'error');
+          }
+        });
+      }
+
+      function setActiveTab(active) {
+        homeTab.classList.remove('active');
+        contactTab.classList.remove('active');
+        if (active === 'home') {
+          homeTab.classList.add('active');
+          homePage.style.display = 'flex';
+          contactPage.style.display = 'none';
+          backBtn.style.display = 'none';       
+          resetAutoSlide();
+        } else {
+          contactTab.classList.add('active');
+          homePage.style.display = 'none';
+          contactPage.style.display = 'flex';
+          backBtn.style.display = 'inline-block'; 
+          if (autoSlideInterval) clearInterval(autoSlideInterval);
+        }
+      }
+
+      homeTab.addEventListener('click', () => setActiveTab('home'));
+      contactTab.addEventListener('click', () => setActiveTab('contact'));
+      backBtn.addEventListener('click', () => setActiveTab('home'));
+
+      function updateGallery() {
+        cards.forEach((card, index) => {
+          card.classList.remove('active', 'prev', 'next', 'hidden');
+          if (index === currentIndex) card.classList.add('active');
+          else if (index === (currentIndex - 1 + cards.length) % cards.length) card.classList.add('prev');
+          else if (index === (currentIndex + 1) % cards.length) card.classList.add('next');
+          else card.classList.add('hidden');
+        });
+      }
+
+      function movePrev() { currentIndex = (currentIndex - 1 + cards.length) % cards.length; updateGallery(); resetAutoSlide(); }
+      function moveNext() { currentIndex = (currentIndex + 1) % cards.length; updateGallery(); resetAutoSlide(); }
+
+      wrapper.addEventListener('click', (e) => {
+        if (e.target.classList.contains('download-btn')) return;
+        if (homePage.style.display !== 'none') {
+          const rect = wrapper.getBoundingClientRect();
+          if (e.clientX < (rect.left + rect.width / 2)) movePrev(); else moveNext();
+        }
+      });
+
+      function startAutoSlide() {
+        if (autoSlideInterval) clearInterval(autoSlideInterval);
+        if (homePage.style.display !== 'none') autoSlideInterval = setInterval(() => { moveNext(); }, 3000);
+      }
+      function resetAutoSlide() { if (autoSlideInterval) clearInterval(autoSlideInterval); startAutoSlide(); }
+
+      wrapper.addEventListener('mouseenter', () => { if (homePage.style.display !== 'none') clearInterval(autoSlideInterval); });
+      wrapper.addEventListener('mouseleave', () => { if (homePage.style.display !== 'none') startAutoSlide(); });
+
+      document.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.download-btn');
+        if (!btn) return;
+        e.preventDefault(); e.stopPropagation();
+
+        const card = btn.closest('.preset-card');
+        if (!card) return;
+        
+        const presetName = card.getAttribute('data-preset') || 'Premium Preset';
+        const imgSrc = card.getAttribute('data-img-src');
+        if (!imgSrc) { showPaymentStatus('❌ Image source not found', 'error'); return; }
+
+        await purchasePreset(presetName, imgSrc, btn);
+      });
+
+      homePage.style.display = 'flex'; contactPage.style.display = 'none'; backBtn.style.display = 'none';
+      updateGallery(); startAutoSlide();
+
+      window.addEventListener('load', () => {
+        cards.forEach(c => { const img = c.querySelector('img'); if (img) img.style.transform = 'translateZ(0)'; });
+      });
+
+      window.handleContactSubmit = function(e) {
+        e.preventDefault();
+        showPaymentStatus('📬 Message sent (demo) — thank you!', 'success');
+        document.getElementById('demoContactForm').reset();
+        return false;
+      };
+    })();
+  </script>
+</body>
+</html>

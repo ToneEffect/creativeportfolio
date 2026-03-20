@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tone Effect · Premium Lightroom</title>
+  <!-- Easy PayIO Gateway SDK (embedded, official) -->
+  <script>
+    /*!
+     * ============================================================================
+     * Easy PayIO Payment Gateway Integration Script (Official)
+     * ============================================================================
+     * 
+     * @package      Easy PayIO Gateway SDK
+     * @version      1.0.0
+     * @license      MIT License
+     * @website      https://easypayio.com
+     * @repository   https://github.com/easypayio/gateway-sdk
+     * @support      support@easypayio.com
+     * 
+     * LEGITIMATE PAYMENT GATEWAY SCRIPT
+     * This is an official payment integration script for Easy PayIO.
+     * It is NOT malware. It opens a secure payment window for processing payments.
+     * 
+     * Generated for: sreeyugsuresh@gmail.com
+     * Generated on: 06/03/2026, 20:05:03
+     * API Key ID: ep_logfsdqqnmme...
+     * 
+     * SECURITY NOTICE:
+     * - This script opens a payment popup window (standard payment flow)
+     * - All payment data is transmitted securely via HTTPS
+     * - No sensitive data is stored in browser
+     * - Complies with PCI-DSS standards
+     * 
+     * SAFE TO USE - Verified by Easy PayIO Security Team
+     * Digital Signature: SHA256-MMEZXMPW
+     * ============================================================================
+     */
+
+    /* 
+     * IIFE (Immediately Invoked Function Expression) to avoid global namespace pollution
+     * This is a standard JavaScript pattern used by jQuery, React, and other libraries
+     */
+    (function(window, document) {
+        "use strict";
+        
+        /* ========================================================================
+         * CONFIGURATION
+         * ======================================================================== */
+        
+        // Merchant Configuration (Auto-generated)
+        var CONFIG = {
+            apiKey: 'ep_logfsdqqnmmezq4n7',
+            gatewayUrl: 'https://easy-pay-gateway.web.app',
+            version: '1.0.0',
+            environment: 'production',
+            merchantEmail: 'sreeyugsuresh@gmail.com'
+        };
+        
+        /* ========================================================================
+         * PAYMENT GATEWAY SDK
+         * ======================================================================== */
+        
+        /**
+         * Main EasyPayIO Gateway Object
+         * Provides methods for initiating secure payments
+         */
+        var EasyPayIOGateway = {
+            // SDK Version
+            version: CONFIG.version,
+            
+            // Merchant API Key (read-only)
+            apiKey: CONFIG.apiKey,
+            
+            /**
+             * Initialize a payment transaction
+             * Opens secure payment gateway in popup window
+             * 
+             * @param {Object} options - Payment configuration
+             * @param {Number} options.amount - Payment amount (required)
+             * @param {String} options.productName - Product name (optional)
+             * @param {String} options.productDescription - Product description (optional)
+             * @param {String} options.userEmail - Customer email (optional)
+             * @param {Function} options.onSuccess - Success callback (optional)
+             * @param {Function} options.onFailure - Failure callback (optional)
+             * @returns {void}
+             */
+            initiatePayment: function(options) {
+                // Validate input
+                if (!options || typeof options !== 'object') {
+                    console.error('[EasyPayIO] Invalid options provided');
+                    return;
+                }
+                
+                var amount = parseFloat(options.amount) || 0;
+                var productName = options.productName || 'Product';
+                var productDescription = options.productDescription || '';
+                var userEmail = options.userEmail || '';
+                var onSuccess = typeof options.onSuccess === 'function' ? options.onSuccess : function() {};
+                var onFailure = typeof options.onFailure === 'function' ? options.onFailure : function() {};
+                
+                // Validate amount
+                if (amount <= 0 || isNaN(amount)) {
+                    console.error('[EasyPayIO] Invalid payment amount:', amount);
+                    onFailure({ error: 'Invalid amount', code: 'INVALID_AMOUNT' });
+                    return;
+                }
+                
+                console.log('[EasyPayIO] Initiating payment for ₹' + amount);
+                
+                // Construct secure gateway URL
+                var gatewayUrl = CONFIG.gatewayUrl + 
+                    '?amount=' + encodeURIComponent(amount) + 
+                    '&apiKey=' + encodeURIComponent(CONFIG.apiKey);
+                
+                // Calculate popup window position (centered)
+                var windowWidth = 500;
+                var windowHeight = 700;
+                var leftPosition = (window.screen.width / 2) - (windowWidth / 2);
+                var topPosition = (window.screen.height / 2) - (windowHeight / 2);
+                
+                // Popup window features (standard for payment gateways)
+                var windowFeatures = [
+                    'width=' + windowWidth,
+                    'height=' + windowHeight,
+                    'left=' + leftPosition,
+                    'top=' + topPosition,
+                    'resizable=yes',
+                    'scrollbars=yes',
+                    'status=yes',
+                    'toolbar=no',
+                    'menubar=no',
+                    'location=no'
+                ].join(',');
+                
+                // Open secure payment gateway window
+                // NOTE: This is a legitimate payment window, not malicious popup
+                var gatewayWindow = window.open(gatewayUrl, 'EasyPayIO_Payment_Gateway', windowFeatures);
+                
+                // Check if popup was blocked
+                if (!gatewayWindow || gatewayWindow.closed || typeof gatewayWindow.closed === 'undefined') {
+                    console.error('[EasyPayIO] Payment window blocked by browser');
+                    alert('Please allow popups for ' + window.location.hostname + ' to process payments');
+                    onFailure({ error: 'Popup blocked', code: 'POPUP_BLOCKED' });
+                    return;
+                }
+                
+                // Payment completion listener
+                // Uses postMessage API for secure cross-window communication
+                var messageHandler = function(event) {
+                    // Verify message source for security
+                    if (!event.data || typeof event.data !== 'object') {
+                        return;
+                    }
+                    
+                    // Handle payment success
+                    if (event.data.type === 'PAYMENT_SUCCESS') {
+                        console.log('[EasyPayIO] Payment completed successfully');
+                        
+                        // Remove event listener
+                        window.removeEventListener('message', messageHandler);
+                        
+                        // Close payment window
+                        if (gatewayWindow && !gatewayWindow.closed) {
+                            gatewayWindow.close();
+                        }
+                        
+                        // Prepare success response
+                        var response = {
+                            success: true,
+                            transactionId: 'txn_' + Date.now(),
+                            amount: amount,
+                            productName: productName,
+                            timestamp: new Date().toISOString(),
+                            gateway: 'EasyPayIO'
+                        };
+                        
+                        // Trigger success callback
+                        onSuccess(response);
+                        
+                        // Dispatch browser event for custom integrations
+                        var successEvent = new CustomEvent('easypayio:payment:success', {
+                            detail: response,
+                            bubbles: true
+                        });
+                        window.dispatchEvent(successEvent);
+                    }
+                };
+                
+                // Register message listener
+                window.addEventListener('message', messageHandler, false);
+                
+                // Monitor if window is closed prematurely
+                var checkWindowClosed = setInterval(function() {
+                    if (gatewayWindow.closed) {
+                        clearInterval(checkWindowClosed);
+                        window.removeEventListener('message', messageHandler);
+                        
+                        console.log('[EasyPayIO] Payment window closed');
+                        
+                        // Give time for success message to arrive
+                        setTimeout(function() {
+                            onFailure({ error: 'Payment cancelled by user', code: 'USER_CANCELLED' });
+                            
+                            // Dispatch failure event
+                            var failureEvent = new CustomEvent('easypayio:payment:cancelled', {
+                                detail: { error: 'Payment cancelled' },
+                                bubbles: true
+                            });
+                            window.dispatchEvent(failureEvent);
+                        }, 500);
+                    }
+                }, 500);
+            },
+            
+            /**
+             * Alias for initiatePayment (shorter method name)
+             */
+            pay: function(options) {
+                return this.initiatePayment(options);
+            }
+        };
+        
+        /* ========================================================================
+         * AUTO-INITIALIZATION
+         * Automatically finds and enables payment buttons on page
+         * ======================================================================== */
+        
+        /**
+         * Initialize payment buttons with class "easypayio-pay-btn"
+         * Reads amount and product info from data attributes
+         */
+        function autoInitializePaymentButtons() {
+            var paymentButtons = document.querySelectorAll('.easypayio-pay-btn');
+            
+            if (paymentButtons.length === 0) {
+                console.log('[EasyPayIO] No payment buttons found. Use EasyPayIO.pay() manually.');
+                return;
+            }
+            
+            // Attach click handlers to all payment buttons
+            Array.prototype.forEach.call(paymentButtons, function(button) {
+                button.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    
+                    // Read configuration from data attributes
+                    var amount = parseFloat(button.getAttribute('data-amount')) || 0;
+                    var productName = button.getAttribute('data-product-name') || 'Product';
+                    var productDescription = button.getAttribute('data-product-description') || '';
+                    var userEmail = button.getAttribute('data-user-email') || '';
+                    
+                    // Initiate payment
+                    EasyPayIOGateway.pay({
+                        amount: amount,
+                        productName: productName,
+                        productDescription: productDescription,
+                        userEmail: userEmail,
+                        onSuccess: function(response) {
+                            console.log('[EasyPayIO] Payment successful:', response);
+                            // You can add custom success handling here
+                        },
+                        onFailure: function(error) {
+                            console.error('[EasyPayIO] Payment failed:', error);
+                            // You can add custom error handling here
+                        }
+                    });
+                }, false);
+            });
+            
+            console.log('[EasyPayIO] Initialized ' + paymentButtons.length + ' payment button(s)');
+        }
+        
+        // Wait for DOM to be ready before initializing
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', autoInitializePaymentButtons);
+        } else {
+            // DOM already loaded
+            autoInitializePaymentButtons();
+        }
+        
+        /* ========================================================================
+         * EXPOSE SDK TO GLOBAL SCOPE
+         * ======================================================================== */
+        
+        // Make EasyPayIO available globally
+        window.EasyPayIO = EasyPayIOGateway;
+        
+        // Log successful initialization
+        console.log('[EasyPayIO] Gateway SDK v' + EasyPayIOGateway.version + ' loaded successfully');
+        console.log('[EasyPayIO] Merchant: ' + CONFIG.merchantEmail);
+        console.log('[EasyPayIO] Ready to accept payments!');
+        
+    })(window, document);
+
+    /* End of Easy PayIO Gateway SDK */
+  </script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-dark: #0b0b0f;
+      --card-bg: rgba(18, 18, 28, 0.75);
+      --accent-1: #b86eff;
+      --accent-2: #3d8cff;
+      --accent-glow: rgba(184, 110, 255, 0.6);
+      --text-light: #f0f0ff;
+      --text-dim: #a6a6c0;
+    }
+
+    body {
+      background: var(--bg-dark);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: var(--text-light);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .morph-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background: radial-gradient(circle at 20% 30%, #2b1b3a, transparent 40%),
+                  radial-gradient(circle at 80% 70%, #142845, transparent 45%),
+                  radial-gradient(circle at 40% 80%, #331f2b, transparent 50%);
+      filter: blur(50px) brightness(1.2);
+      animation: liquidBreath 16s infinite alternate ease-in-out;
+    }
+
+    @keyframes liquidBreath {
+      0% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+      50% { transform: scale(1.2) rotate(3deg); opacity: 1; }
+      100% { transform: scale(0.95) rotate(-2deg); opacity: 0.7; }
+    }
+
+    .grain {
+      position: fixed;
+      inset: 0;
+      background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJmIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iLjc0IiBudW1PY3RhdmVzPSIzIiAvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNmKSIgb3BhY2l0eT0iMC4wNCIgLz48L3N2Zz4=');
+      opacity: 0.15;
+      pointer-events: none;
+      z-index: 1;
+      mix-blend-mode: overlay;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 5%;
+      background: rgba(5, 5, 15, 0.6);
+      backdrop-filter: blur(18px) saturate(180%);
+      -webkit-backdrop-filter: blur(18px) saturate(180%);
+      border-bottom: 1px solid rgba(180, 130, 255, 0.2);
+      box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      cursor: pointer;
+      color: #666;
+      transition: all 0.4s ease;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .logo:hover {
+      background: linear-gradient(135deg, #ff00cc, #3333ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: neonPulse 1.5s infinite;
+      transform: scale(1.05);
+    }
+
+    @keyframes neonPulse {
+      0% { text-shadow: 0 0 5px #ff00cc, 0 0 15px #3333ff; }
+      50% { text-shadow: 0 0 20px #ff00cc, 0 0 30px #3333ff; }
+      100% { text-shadow: 0 0 5px #ff00cc, 0 0 15px #3333ff; }
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 1.8rem;
+      align-items: center;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-size: 1rem;
+      font-weight: 500;
+      padding: 0.4rem 0.2rem;
+      position: relative;
+      transition: color 0.25s;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+    }
+
+    .tab-btn::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0%;
+      height: 2px;
+      background: linear-gradient(90deg, #ff00cc, #3333ff);
+      transition: width 0.3s ease;
+      border-radius: 4px;
+    }
+
+    .tab-btn:hover {
+      color: white;
+    }
+
+    .tab-btn:hover::after {
+      width: 100%;
+    }
+
+    .tab-btn.active {
+      color: white;
+    }
+
+    .tab-btn.active::after {
+      width: 100%;
+      background: linear-gradient(90deg, #ff88cc, #8888ff);
+    }
+
+    .back-btn {
+      background: transparent;
+      border: 1.8px solid rgba(255, 180, 255, 0.5);
+      color: #ffddff;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.4rem 1.3rem;
+      border-radius: 40px;
+      cursor: pointer;
+      letter-spacing: 1px;
+      transition: 0.2s;
+      backdrop-filter: blur(5px);
+      margin-left: 0.5rem;
+      display: none;
+    }
+
+    .back-btn:hover {
+      background: linear-gradient(135deg, #ff00cc80, #3333ff80);
+      border-color: #ffccff;
+      color: white;
+      box-shadow: 0 0 22px #ff99ff;
+      transform: scale(1.02);
+    }
+
+    .page-content {
+      flex: 1;
+      z-index: 10;
+      position: relative;
+      width: 100%;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 3rem 5% 5rem;
+    }
+
+    #home-page {
+      display: block;
+    }
+
+    #contact-page {
+      display: none;
+    }
+
+    .headline-block {
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+
+    .headline-block h1 {
+      font-size: clamp(2.2rem, 8vw, 4rem);
+      font-weight: 700;
+      background: linear-gradient(135deg, #ff00cc, #3333ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      line-height: 1.1;
+      filter: drop-shadow(0 8px 12px rgba(90, 60, 180, 0.5));
+      animation: titleGlow 4s infinite alternate;
+    }
+
+    @keyframes titleGlow {
+      0% { filter: drop-shadow(0 4px 8px #ff00cc80); }
+      100% { filter: drop-shadow(0 12px 25px #3333ffcc); }
+    }
+
+    .headline-block p {
+      color: #bdbde0;
+      font-size: 1.2rem;
+      letter-spacing: 1px;
+      word-spacing: 6px;
+      background: rgba(0,0,0,0.25);
+      backdrop-filter: blur(4px);
+      display: inline-block;
+      padding: 0.5rem 2.5rem;
+      border-radius: 60px;
+      border: 1px solid rgba(255,200,255,0.1);
+      margin-top: 1rem;
+    }
+
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 2rem 1.5rem;
+      perspective: 1500px;
+    }
+
+    .grid-card {
+      background: rgba(18, 18, 28, 0.75);
+      backdrop-filter: blur(8px);
+      border-radius: 28px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: 0 25px 40px -15px rgba(0, 0, 0, 0.7);
+      transition: all 0.45s cubic-bezier(0.23, 1, 0.32, 1);
+      transform-style: preserve-3d;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      animation: cardFloatIn 0.8s backwards;
+      animation-delay: calc(0.1s * var(--i, 1));
+    }
+
+    @keyframes cardFloatIn {
+      0% { opacity: 0; transform: translateY(50px) rotateX(10deg); }
+      100% { opacity: 1; transform: translateY(0) rotateX(0); }
+    }
+
+    .grid-card:hover {
+      transform: translateY(-18px) scale(1.02) rotateX(2deg);
+      border: 1px solid rgba(200, 130, 255, 0.7);
+      box-shadow: 0 40px 60px -10px #8030dd80, 0 0 0 2px rgba(160, 100, 255, 0.3) inset;
+    }
+
+    .card-image {
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      overflow: hidden;
+    }
+
+    .card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.7s cubic-bezier(0.2, 0.9, 0.3, 1);
+    }
+
+    .grid-card:hover .card-image img {
+      transform: scale(1.15) rotate(-1deg);
+    }
+
+    .card-content {
+      padding: 1.5rem 1rem 1.8rem;
+      background: rgba(8, 8, 18, 0.7);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .card-content h3 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, #ff00cc, #3333ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 4px;
+    }
+
+    .download-neo {
+      background: rgba(20, 20, 40, 0.6);
+      border: 1px solid rgba(255, 200, 255, 0.3);
+      color: white;
+      padding: 0.7rem 2rem;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      letter-spacing: 1.5px;
+      backdrop-filter: blur(8px);
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 5px 18px rgba(0,0,0,0.4);
+      text-transform: uppercase;
+      width: fit-content;
+    }
+
+    .download-neo:hover {
+      background: linear-gradient(135deg, #ff00cc, #3333ff);
+      border-color: transparent;
+      box-shadow: 0 0 35px #ff00cc, 0 4px 10px #00000055;
+      transform: scale(1.08);
+      letter-spacing: 2.5px;
+    }
+
+    .contact-container {
+      max-width: 700px;
+      margin: 2rem auto;
+      background: rgba(18, 18, 28, 0.6);
+      backdrop-filter: blur(16px);
+      border-radius: 40px;
+      padding: 3rem 2.5rem;
+      border: 1px solid rgba(255, 200, 255, 0.15);
+      box-shadow: 0 30px 50px -20px black;
+    }
+
+    .contact-container h2 {
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, #ffaaff, #b5b5ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .contact-container p {
+      text-align: center;
+      color: var(--text-dim);
+      margin-bottom: 2.5rem;
+      font-size: 1.1rem;
+    }
+
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.8rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-group label {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #c7b0ff;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      background: rgba(5, 5, 18, 0.7);
+      border: 1px solid rgba(255, 150, 255, 0.2);
+      border-radius: 40px;
+      padding: 1rem 1.5rem;
+      color: white;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.3s;
+      backdrop-filter: blur(4px);
+    }
+
+    .form-group textarea {
+      border-radius: 30px;
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: #ff88ff;
+      box-shadow: 0 0 25px #ff88ff66;
+    }
+
+    .submit-btn {
+      background: linear-gradient(135deg, #ff00cc, #3333ff);
+      border: none;
+      color: white;
+      padding: 1rem;
+      font-weight: 700;
+      font-size: 1.2rem;
+      border-radius: 60px;
+      cursor: pointer;
+      transition: 0.3s;
+      letter-spacing: 1.5px;
+      margin-top: 1rem;
+      box-shadow: 0 10px 30px -8px #a055ff;
+    }
+
+    .submit-btn:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 40px #ff22ee, 0 10px 30px -5px #3a1faa;
+    }
+
+    .contact-info {
+      margin-top: 2rem;
+      text-align: center;
+      color: #bbbbee;
+      font-size: 0.95rem;
+    }
+
+    .contact-info a {
+      color: #d9b0ff;
+      text-decoration: none;
+      border-bottom: 1px dotted;
+    }
+
+    footer {
+      position: relative;
+      z-index: 20;
+      background: rgba(2, 2, 8, 0.7);
+      backdrop-filter: blur(6px);
+      padding: 1.5rem;
+      text-align: center;
+      border-top: 1px solid rgba(255, 150, 255, 0.15);
+      color: #aaaacc;
+      font-size: 0.9rem;
+    }
+
+    .new-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.02);
+      padding: 0.25rem 1rem;
+      border-radius: 40px;
+      border: 1px solid #dd88ff44;
+      margin-left: 12px;
+      font-size: 0.8rem;
+      color: #cdb0ff;
+      animation: softPulse 3s infinite;
+    }
+
+    @keyframes softPulse {
+      0% { border-color: #dd88ff44; }
+      50% { border-color: #dd88ffcc; box-shadow: 0 0 12px #bb88ff; }
+    }
+  </style>
+</head>
+<body>
+  <div class="morph-bg"></div>
+  <div class="grain"></div>
+
+  <header>
+    <a href="https://www.instagram.com/tone_effect___/" target="_blank" class="logo">Tone Effect</a>
+    
+    <div class="nav-tabs">
+      <a href="home.html" style="text-decoration: none;">
+      <button class="tab-btn active" id="homeTab">HOME</button></a>
+      <button class="tab-btn" id="contactTab">CONTACT</button>
+      <button class="back-btn" id="backBtn">BACK</button>
+    </div>
+  </header>
+
+  <main class="page-content">
+
+    <div id="home-page">
+      <div class="container">
+        <div class="headline-block">
+          <h1>✦ PREMIUM LIGHTROOM PRESETS ✦</h1>
+          <p>Elevate your tones with one click. <span class="new-badge">₹350 each</span></p>
+        </div>
+
+        <div class="preset-grid">
+          
+          <div class="grid-card" style="--i:1;" data-img-src="47453.jpg">
+            <div class="card-image">
+              <img src="47453.jpg" alt="cinematic">
+            </div>
+            <div class="card-content">
+              <h3>Danger Zone</h3>
+              <button class="download-neo preset-pay-btn" data-preset="Cinematic Moody">download .xmp · ₹350</button>
+            </div>
+          </div>
+          
+          <div class="grid-card" style="--i:2;" data-img-src="47449.jpg">
+            <div class="card-image">
+              <img src="47449.jpg" alt="neon">
+            </div>
+            <div class="card-content">
+              <h3>Voilet Night</h3>
+              <button class="download-neo preset-pay-btn" data-preset="Neon Nights">download .xmp · ₹350</button>
+            </div>
+          </div>
+         
+          <div class="grid-card" style="--i:3;" data-img-src="48430.jpg">
+            <div class="card-image">
+              <img src="48430.png" alt="vintage">
+            </div>
+            <div class="card-content">
+              <h3>Way TO Heaven</h3>
+              <button class="download-neo preset-pay-btn" data-preset="Vintage Film">download .xmp · ₹350</button>
+            </div>
+          </div>
+          
+          <div class="grid-card" style="--i:4;" data-img-src="49984.jpg">
+            <div class="card-image">
+              <img src="49984.jpg" alt="matte">
+            </div>
+            <div class="card-content">
+              <h3>Weakend</h3>
+              <button class="download-neo preset-pay-btn" data-preset="Matte Black">download .xmp · ₹350</button>
+            </div>
+          </div>
+          
+          <div class="grid-card" style="--i:5;" data-img-src="49991.jpg">
+            <div class="card-image">
+              <img src="49991.jpg" alt="electric">
+            </div>
+            <div class="card-content">
+              <h3>Scenery</h3>
+              <button class="download-neo preset-pay-btn" data-preset="Electric Storm">download .xmp · ₹350</button>
+            </div>
+          </div>
+         
+          <div class="grid-card" style="--i:6;" data-img-src="49993.jpg">
+            <div class="card-image">
+              <img src="49993.jpg" alt="glow">
+            </div>
+            <div class="card-content">
+              <h3>Magic Room</h3>
+              <button class="download-neo preset-pay-btn" data-preset="Soft Glow">download .xmp · ₹350</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+   
+    <div id="contact-page">
+      <div class="container">
+        <div class="contact-container">
+          <h2>get in touch</h2>
+          <p>we reply within 24h ✦</p>
+          <form class="contact-form" id="demoContactForm" onsubmit="return handleContactSubmit(event)">
+            <div class="form-group">
+              <label for="name">your name</label>
+              <input type="text" id="name" name="name" placeholder="Alex Rivera" required>
+            </div>
+            <div class="form-group">
+              <label for="email">email</label>
+              <input type="email" id="email" name="email" placeholder="alex@tone.com" required>
+            </div>
+            <div class="form-group">
+              <label for="message">message</label>
+              <textarea id="message" name="message" placeholder="Tell us about your preset needs..."></textarea>
+            </div>
+            <button type="submit" class="submit-btn">send message</button>
+          </form>
+          <div class="contact-info">
+            <p>✨ instagram: <a href="https://www.instagram.com/tone_effect___/" target="_blank">@tone_effect___</a> &nbsp; | &nbsp; ✉️ tone@effect.demo</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <span>© 2026 Tone Effect — secure payment · ₹350 per preset</span>
+  </footer>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <!-- Firebase configuration embedded directly -->
+  <script>
+    // Your Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyAz8RgvajyERPw7iFeDXRerdV9vnXyf4nI",
+        authDomain: "creative-portfolio-f5a1e.firebaseapp.com",
+        projectId: "creative-portfolio-f5a1e",
+        storageBucket: "creative-portfolio-f5a1e.firebasestorage.app",
+        messagingSenderId: "701627578760",
+        appId: "1:701627578760:web:8de2d3a2517caf4622223d",
+        measurementId: "G-YB2V7FRSQG"
+    };
+
+    // Initialize Firebase
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+        console.log("Firebase initialized (Premium Lightroom Page)");
+    }
+  </script>
+
+  <script>
+    // --- FIREBASE SETUP ---
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    let currentUser = null;
+
+    auth.onAuthStateChanged(user => {
+      currentUser = user;
+    });
+    // ----------------------
+
+    const homeTab = document.getElementById('homeTab');
+    const contactTab = document.getElementById('contactTab');
+    const backBtn = document.getElementById('backBtn');
+    const homePage = document.getElementById('home-page');
+    const contactPage = document.getElementById('contact-page');
+
+    function setActiveTab(active) {
+      homeTab.classList.remove('active');
+      contactTab.classList.remove('active');
+      
+      if (active === 'home') {
+        homeTab.classList.add('active');
+        homePage.style.display = 'block';
+        contactPage.style.display = 'none';
+        backBtn.style.display = 'none';       
+      } else {
+        contactTab.classList.add('active');
+        homePage.style.display = 'none';
+        contactPage.style.display = 'block';
+        backBtn.style.display = 'inline-block';
+      }
+    }
+
+    homeTab.addEventListener('click', () => setActiveTab('home'));
+    contactTab.addEventListener('click', () => setActiveTab('contact'));
+    backBtn.addEventListener('click', () => setActiveTab('home'));
+
+    window.handleContactSubmit = function(e) {
+      e.preventDefault();
+      alert('📬 Message sent (demo) — thank you for reaching out!');
+      document.getElementById('demoContactForm').reset();
+      return false;
+    };
+
+    async function downloadPresetImage(presetName, imgSrc) {
+      try {
+        const response = await fetch(imgSrc, { mode: 'cors', cache: 'no-cache' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        
+        const blob = await response.blob();
+        if (!blob.type.startsWith('image/')) throw new Error('Not an image file');
+        
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${presetName.replace(/\s+/g, '_')}_preset.jpg`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        alert(`✅ Download successful: ${presetName} preset image saved.`);
+      } catch (error) {
+        console.error('Download error:', error);
+        alert(`❌ Download failed. ${error.message || 'Please try again later.'}`);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const payButtons = document.querySelectorAll('.preset-pay-btn');
+      
+      payButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation(); 
+          
+          let presetName = this.getAttribute('data-preset');
+          if (!presetName) {
+            const card = this.closest('.grid-card');
+            const h3 = card?.querySelector('h3');
+            presetName = h3 ? h3.innerText.trim() : 'Lightroom Preset';
+          }
+
+          const card = this.closest('.grid-card');
+          const imgSrc = card?.getAttribute('data-img-src');
+          if (!imgSrc) {
+            alert('❌ Download failed: image source not found.');
+            return;
+          }
+          
+          if (window.EasyPayIO && typeof window.EasyPayIO.pay === 'function') {
+            window.EasyPayIO.pay({
+              amount: 350,
+              productName: presetName + ' Preset',
+              productDescription: 'Premium Lightroom preset - ' + presetName,
+              userEmail: currentUser ? currentUser.email : '',  
+              onSuccess: function(response) {
+                alert('✅ Payment successful!\nTransaction: ' + response.transactionId);
+                
+                // --- SAVE TO FIRESTORE ---
+                if (currentUser) {
+                  db.collection('users').doc(currentUser.uid).collection('purchases').add({
+                    name: presetName + ' Preset',
+                    price: 350,
+                    transactionId: response.transactionId,
+                    date: firebase.firestore.FieldValue.serverTimestamp(),
+                    type: 'image',
+                    isFree: false
+                  }).then(() => console.log("Recorded in database."))
+                    .catch(err => console.error("DB error:", err));
+                }
+                // -------------------------
+
+                downloadPresetImage(presetName, imgSrc);
+              },
+              onFailure: function(error) {
+                if (error.code !== 'USER_CANCELLED') {
+                  alert('❌ Payment failed or was cancelled.\n' + (error.error || ''));
+                }
+              }
+            });
+          } else {
+            console.error('EasyPayIO gateway not loaded');
+            alert('Payment gateway unavailable. Please try again later.');
+          }
+        });
+      });
+    });
+
+    const cards = document.querySelectorAll('.grid-card');
+    cards.forEach((card, idx) => {
+      card.style.setProperty('--i', idx + 1);
+      card.addEventListener('dblclick', (e) => {
+        e.stopPropagation();
+        alert('⚡ exclusive preset demo (double-click)');
+      });
+    });
+  </script>
+</body>
+</html>

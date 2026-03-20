@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tone Effect · preset gallery</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    :root {
+      --text: #ffffff;
+      --glass-bg: rgba(10, 10, 10, 0.7);
+      --accent-gradient: linear-gradient(135deg, #ff00cc, #3333ff);
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at center, #1a0b1a 0%, #050505 80%);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(125deg, 
+        rgba(255, 0, 204, 0.25) 0%, 
+        rgba(51, 51, 255, 0.35) 30%, 
+        rgba(255, 0, 204, 0.2) 60%, 
+        rgba(20, 30, 180, 0.4) 80%, 
+        rgba(255, 0, 204, 0.25) 100%);
+      background-size: 300% 300%;
+      animation: flowAuto 14s infinite alternate;
+      pointer-events: none;
+      z-index: 0;
+      mix-blend-mode: overlay;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 30% 40%, rgba(255, 120, 240, 0.25) 0%, transparent 40%),
+                  radial-gradient(circle at 80% 70%, rgba(80, 80, 255, 0.35) 0%, transparent 45%);
+      background-size: 200% 200%;
+      animation: breathe 9s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+      mix-blend-mode: screen;
+    }
+
+    @keyframes flowAuto {
+      0% { background-position: 0% 0%; }
+      25% { background-position: 40% 60%; }
+      50% { background-position: 80% 30%; }
+      75% { background-position: 20% 80%; }
+      100% { background-position: 100% 100%; }
+    }
+
+    @keyframes breathe {
+      0% { opacity: 0.4; transform: scale(1); }
+      50% { opacity: 0.9; transform: scale(1.05); }
+      100% { opacity: 0.4; transform: scale(1); }
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 5%;
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .logo {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: #ccc;
+      transition: 0.25s;
+    }
+    .logo:hover {
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      transform: scale(1.02);
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: #cccccc;
+      font-size: 1rem;
+      font-weight: 500;
+      padding: 0.4rem 0.2rem;
+      position: relative;
+      cursor: pointer;
+      letter-spacing: 0.8px;
+    }
+
+    .tab-btn::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #ff00cc, #3333ff);
+      transition: width 0.25s;
+      border-radius: 4px;
+    }
+
+    .tab-btn:hover { color: white; }
+    .tab-btn:hover::after { width: 100%; }
+    .tab-btn.active { color: white; }
+    .tab-btn.active::after { width: 100%; background: linear-gradient(90deg, #ffaaff, #aaaaff); }
+
+    .back-btn {
+      background: transparent;
+      border: 1.5px solid rgba(255, 200, 255, 0.4);
+      color: #ffddff;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.3rem 1.2rem;
+      border-radius: 40px;
+      cursor: pointer;
+      letter-spacing: 1px;
+      transition: 0.2s;
+      backdrop-filter: blur(4px);
+      margin-left: 0.5rem;
+      display: none; 
+    }
+    .back-btn:hover {
+      background: linear-gradient(135deg, #ff00cc80, #3333ff80);
+      border-color: #ffccff;
+      color: white;
+      box-shadow: 0 0 18px #ff99ff;
+    }
+
+    footer {
+      padding: 20px;
+      text-align: center;
+      background: #070707b3;
+      backdrop-filter: blur(10px);
+      color: #aaa;
+      font-size: 0.8rem;
+      z-index: 10;
+      border-top: 1px solid rgba(255,0,204,0.1);
+    }
+
+    .page-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 5;
+    }
+
+    #home-page {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px 50px;
+      width: 100%;
+    }
+
+    .gallery-title {
+      font-size: 2.7rem;
+      background: linear-gradient(135deg, #ff00cc, #3333ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 6px;
+      text-shadow: 0 0 18px rgba(255,0,200,0.5);
+    }
+
+    .subtitle {
+      color: #ddd;
+      margin-bottom: 30px;
+      font-size: 1.1rem;
+      background: rgba(0,0,0,0.3);
+      padding: 6px 24px;
+      border-radius: 60px;
+      backdrop-filter: blur(4px);
+    }
+
+    .gallery-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 1000px;
+      height: 440px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform-style: preserve-3d;
+      margin: 0 auto;
+      cursor: pointer;
+    }
+
+    .preset-card {
+      position: absolute;
+      width: 260px;
+      height: 320px;
+      border-radius: 22px;
+      background: #111;
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.5s cubic-bezier(0.23, 0.95, 0.3, 1.1);
+      box-shadow: 0 20px 35px rgba(0,0,0,0.8);
+      will-change: transform, opacity;
+      backface-visibility: hidden;
+      overflow: hidden;
+      pointer-events: auto;
+    }
+
+    .preset-card .card-image-wrapper {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      border-radius: 22px;
+    }
+
+    .preset-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.35s;
+      pointer-events: none;
+      backface-visibility: hidden;
+    }
+
+    .preset-card:hover {
+      transform: translateY(-8px) scale(1.01);
+      border-color: #ff88ff80;
+      box-shadow: 0 20px 40px rgba(255,0,204,0.4);
+    }
+
+    .preset-card:hover img {
+      transform: scale(1.1);
+    }
+
+    .card-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      padding: 20px 10px;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.25s;
+      background: linear-gradient(to top, #000000dd, transparent);
+      border-bottom-left-radius: 22px;
+      border-bottom-right-radius: 22px;
+      pointer-events: none;
+    }
+
+    .preset-card:hover .card-overlay {
+      opacity: 1;
+    }
+
+    .card-overlay h3 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      background: linear-gradient(135deg, #ffc0ff, #b5b5ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .preset-description {
+      font-size: 0.75rem;
+      color: #e0d0ff;
+      margin-bottom: 12px;
+      letter-spacing: 0.3px;
+      text-shadow: 0 1px 4px black;
+      opacity: 0.9;
+      font-weight: 400;
+      backdrop-filter: blur(2px);
+      padding: 0 4px;
+    }
+
+    .download-btn {
+      padding: 8px 22px;
+      background: transparent;
+      border: 1.8px solid rgba(255,255,255,0.9);
+      color: white;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.7rem;
+      letter-spacing: 1px;
+      transition: 0.2s;
+      box-shadow: 0 4px 12px black;
+      pointer-events: auto;
+      backdrop-filter: blur(5px);
+    }
+
+    .download-btn:hover {
+      background: linear-gradient(135deg, #ff00cc, #3333ff);
+      border-color: transparent;
+      box-shadow: 0 0 28px #ff22ee;
+      color: white;
+      transform: scale(1.04);
+    }
+
+    .preset-card.active { transform: translate3d(0, 0, 200px) scale(1.1); z-index: 20; opacity: 1; }
+    .preset-card.prev { transform: translate3d(-230px, 0, 0) rotateY(22deg) scale(0.85); z-index: 10; opacity: 0.7; }
+    .preset-card.next { transform: translate3d(230px, 0, 0) rotateY(-22deg) scale(0.85); z-index: 10; opacity: 0.7; }
+    .preset-card.hidden { transform: translate3d(0, 0, -400px); opacity: 0; z-index: 0; }
+
+    #contact-page {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .contact-container {
+      max-width: 680px;
+      width: 100%;
+      background: rgba(12, 10, 22, 0.7);
+      backdrop-filter: blur(18px);
+      border-radius: 50px;
+      padding: 3rem 2.5rem;
+      border: 1px solid rgba(230, 180, 255, 0.15);
+      box-shadow: 0 35px 60px -20px black;
+    }
+
+    .contact-container h2 {
+      font-size: 2.6rem;
+      background: linear-gradient(135deg, #ffccff, #b5b5ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+
+    .contact-container p {
+      text-align: center;
+      color: #cbcbe0;
+      margin-bottom: 2.5rem;
+      font-size: 1.1rem;
+    }
+
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.8rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-group label {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #ccaaff;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      background: rgba(0, 0, 10, 0.6);
+      border: 1px solid rgba(210, 150, 255, 0.25);
+      border-radius: 50px;
+      padding: 1rem 1.6rem;
+      color: white;
+      font-size: 1rem;
+      outline: none;
+      transition: 0.25s;
+    }
+
+    .form-group textarea {
+      border-radius: 30px;
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: #ffaaff;
+      box-shadow: 0 0 28px #ff88ff80;
+    }
+
+    .submit-btn {
+      background: linear-gradient(135deg, #ff00cc, #3333ff);
+      border: none;
+      color: white;
+      padding: 1rem;
+      font-weight: 700;
+      font-size: 1.2rem;
+      border-radius: 60px;
+      cursor: pointer;
+      transition: 0.25s;
+      letter-spacing: 1.2px;
+      margin-top: 0.5rem;
+      box-shadow: 0 12px 32px -10px #a055ff;
+    }
+
+    .submit-btn:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 40px #ff22ee, 0 10px 30px -5px #2a1f80;
+    }
+
+    .contact-info {
+      margin-top: 2rem;
+      text-align: center;
+      color: #bbbbee;
+      font-size: 0.95rem;
+    }
+
+    .contact-info a {
+      color: #e3b9ff;
+      text-decoration: none;
+      border-bottom: 1px dotted;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+   <a href="https://www.instagram.com/tone_effect___/" target="_blank" class="logo">Tone Effect</a>
+  <div class="nav-tabs">
+    <a href="home.html" style="text-decoration: none;">
+    <button class="tab-btn active" id="homeTab">HOME</button></a>   
+    <button class="tab-btn" id="contactTab">CONTACT</button>
+    <button class="back-btn" id="backBtn">BACK</button>
+  </div>
+</header>
+
+<main class="page-content">
+
+  <div id="home-page">
+    <h1 class="gallery-title">✦ FREE PRESETS ✦</h1>
+    <p class="subtitle">Elevate your tones with one click.</p>
+    
+    <div class="gallery-wrapper" id="cardStack">
+
+      <div class="preset-card" data-index="0">
+        <div class="card-image-wrapper">
+          <img src="49993.jpg" alt="Cinematic" loading="lazy">
+        </div>
+        <div class="card-overlay">
+          <h3>Magic Room</h3>
+          <button class="download-btn" data-preset="Cinematic" data-img-src="49993.jpg">Download .xmp</button>
+        </div>
+      </div>
+
+      <div class="preset-card" data-index="1">
+        <div class="card-image-wrapper">
+          <img src="47453.jpg" alt="Neon" loading="lazy">
+        </div>
+        <div class="card-overlay">
+          <h3>Danger Zone</h3>
+          <button class="download-btn" data-preset="Neon" data-img-src="47453.jpg">Download .xmp</button>
+        </div>
+      </div>
+
+      <div class="preset-card" data-index="2">
+        <div class="card-image-wrapper">
+          <img src="47449.jpg" alt="Vintage" loading="lazy">
+        </div>
+        <div class="card-overlay">
+          <h3>Voilet Dream</h3>
+          <button class="download-btn" data-preset="Vintage" data-img-src="47449.jpg">Download .xmp</button>
+        </div>
+      </div>
+
+      <div class="preset-card" data-index="3">
+        <div class="card-image-wrapper">
+          <img src="49991.jpg" alt="Matte" loading="lazy">
+        </div>
+        <div class="card-overlay">
+          <h3>MATTE BLACK</h3>
+          <button class="download-btn" data-preset="Matte" data-img-src="49991.jpg">Download .xmp</button>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  <div id="contact-page">
+    <div class="contact-container">
+      <h2>get in touch</h2>
+      <p>we reply within 24h ✦</p>
+      <form class="contact-form" id="demoContactForm" onsubmit="return handleContactSubmit(event)">
+        <div class="form-group">
+          <label for="name">your name</label>
+          <input type="text" id="name" name="name" placeholder="Alex Rivera" required>
+        </div>
+        <div class="form-group">
+          <label for="email">email</label>
+          <input type="email" id="email" name="email" placeholder="alex@tone.com" required>
+        </div>
+        <div class="form-group">
+          <label for="message">message</label>
+          <textarea id="message" name="message" placeholder="Tell us about your preset needs..."></textarea>
+        </div>
+        <button type="submit" class="submit-btn">send message</button>
+      </form>
+      <div class="contact-info">
+        <p>✨ instagram: <a href="https://www.instagram.com/tone_effect___/" target="_blank">@tone_effect___</a> &nbsp; | &nbsp; ✉️ tone@effect.demo</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>© 2026 Tone Effect</footer>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+<!-- Firebase configuration embedded directly -->
+<script>
+  // Your Firebase configuration
+  const firebaseConfig = {
+      apiKey: "AIzaSyAz8RgvajyERPw7iFeDXRerdV9vnXyf4nI",
+      authDomain: "creative-portfolio-f5a1e.firebaseapp.com",
+      projectId: "creative-portfolio-f5a1e",
+      storageBucket: "creative-portfolio-f5a1e.firebasestorage.app",
+      messagingSenderId: "701627578760",
+      appId: "1:701627578760:web:8de2d3a2517caf4622223d",
+      measurementId: "G-YB2V7FRSQG"
+  };
+
+  // Initialize Firebase
+  if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+      console.log("Firebase initialized (Free Page)");
+  }
+</script>
+
+<script>
+    (function() {
+      // --- FIREBASE SETUP ---
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+      let currentUser = null;
+
+      auth.onAuthStateChanged(user => {
+        currentUser = user;
+      });
+      // ----------------------
+
+      const homeTab = document.getElementById('homeTab');
+      const contactTab = document.getElementById('contactTab');
+      const backBtn = document.getElementById('backBtn');
+      const homePage = document.getElementById('home-page');
+      const contactPage = document.getElementById('contact-page');
+
+      function setActiveTab(active) {
+        homeTab.classList.remove('active');
+        contactTab.classList.remove('active');
+        
+        if (active === 'home') {
+          homeTab.classList.add('active');
+          homePage.style.display = 'flex';
+          contactPage.style.display = 'none';
+          backBtn.style.display = 'none';       
+          resetAutoSlide();                      
+        } else {
+          contactTab.classList.add('active');
+          homePage.style.display = 'none';
+          contactPage.style.display = 'flex';
+          backBtn.style.display = 'inline-block';
+          if (autoSlideInterval) clearInterval(autoSlideInterval); 
+        }
+      }
+
+      homeTab.addEventListener('click', () => setActiveTab('home'));
+      contactTab.addEventListener('click', () => setActiveTab('contact'));
+      backBtn.addEventListener('click', () => setActiveTab('home'));
+
+      const cards = Array.from(document.querySelectorAll('.preset-card'));
+      const wrapper = document.getElementById('cardStack');
+      let currentIndex = 0;
+      let autoSlideInterval;
+
+      function updateGallery() {
+        cards.forEach((card, idx) => {
+          card.classList.remove('active', 'prev', 'next', 'hidden');
+          if (idx === currentIndex) card.classList.add('active');
+          else if (idx === (currentIndex - 1 + cards.length) % cards.length) card.classList.add('prev');
+          else if (index === (currentIndex + 1) % cards.length) card.classList.add('next');
+          else card.classList.add('hidden');
+        });
+      }
+
+      function movePrev() { currentIndex = (currentIndex - 1 + cards.length) % cards.length; updateGallery(); resetAutoSlide(); }
+      function moveNext() { currentIndex = (currentIndex + 1) % cards.length; updateGallery(); resetAutoSlide(); }
+
+      function handleWrapperClick(e) {
+        if (e.target.classList.contains('download-btn')) return;
+        if (homePage.style.display !== 'flex') return; 
+
+        const rect = wrapper.getBoundingClientRect();
+        if (e.clientX < (rect.left + rect.width / 2)) movePrev(); else moveNext();
+      }
+      wrapper.addEventListener('click', handleWrapperClick);
+
+      function startAutoSlide() {
+        if (autoSlideInterval) clearInterval(autoSlideInterval);
+        if (homePage.style.display === 'flex') autoSlideInterval = setInterval(() => { moveNext(); }, 2200);
+      }
+      function resetAutoSlide() { if (autoSlideInterval) clearInterval(autoSlideInterval); startAutoSlide(); }
+
+      wrapper.addEventListener('mouseenter', () => { if (homePage.style.display === 'flex' && autoSlideInterval) clearInterval(autoSlideInterval); });
+      wrapper.addEventListener('mouseleave', () => { if (homePage.style.display === 'flex') startAutoSlide(); });
+
+      function handleImageDownload(presetName, imgSrc) {
+        // --- SAVE FREE DOWNLOAD TO FIRESTORE ---
+        if (currentUser) {
+          db.collection('users').doc(currentUser.uid).collection('purchases').add({
+            name: presetName + ' (Free)',
+            price: 0,
+            transactionId: 'free_' + Date.now(),
+            date: firebase.firestore.FieldValue.serverTimestamp(),
+            type: 'image',
+            isFree: true
+          }).catch(err => console.error("Error saving download:", err));
+        }
+        // ---------------------------------------
+
+        fetch(imgSrc)
+          .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.blob();
+          })
+          .then(blob => {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${presetName.replace(/\s+/g, '_')}_preset.jpg`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            alert(`⬇️ ${presetName} image downloaded (original preset photo).`);
+          })
+          .catch(error => {
+            console.error('Download failed:', error);
+            alert('Download failed — using fallback direct link.\nThe image will open in a new tab; you can save it manually.');
+            window.open(imgSrc, '_blank');
+          });
+      }
+
+      document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.download-btn');
+        if (!btn) return;
+        e.stopPropagation();
+
+        const card = btn.closest('.preset-card');
+        if (!card) return;
+
+        const presetName = btn.getAttribute('data-preset') || 'Preset';
+        let imgSrc = btn.getAttribute('data-img-src');
+        if (!imgSrc) {
+          const img = card.querySelector('img');
+          imgSrc = img ? img.src : null;
+        }
+
+        if (imgSrc) handleImageDownload(presetName, imgSrc);
+        else alert('Image source not found.');
+      });
+
+      window.handleContactSubmit = function(e) {
+        e.preventDefault();
+        alert('📬 Message sent (demo) – we’ll get back to you soon!');
+        document.getElementById('demoContactForm').reset();
+        return false;
+      };
+
+      homePage.style.display = 'flex'; contactPage.style.display = 'none'; backBtn.style.display = 'none';   
+      updateGallery(); startAutoSlide();
+
+      window.addEventListener('load', () => {
+        cards.forEach(card => { const img = card.querySelector('img'); if (img) img.style.transform = 'translateZ(0)'; });
+      });
+      window.resetAutoSlide = resetAutoSlide;
+    })();
+  </script>
+</body>
+</html>
